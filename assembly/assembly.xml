@@ -22,6 +22,27 @@
       </includes>
     </fileSet>
     <fileSet>
+        <directory>.</directory>
+        <outputDirectory>${assembly.name}/logs</outputDirectory>
+        <excludes>
+          <exclude>*/**</exclude>
+        </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.parent.basedir}/conf.new</directory>
+      <outputDirectory>${assembly.name}/conf.new</outputDirectory>
+      <includes>
+        <include>*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.parent.basedir}/hue-examples</directory>
+      <outputDirectory>${assembly.name}/hue-examples</outputDirectory>
+      <includes>
+        <include>*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.parent.basedir}/rsc/target/jars</directory>
       <outputDirectory>${assembly.name}/rsc-jars</outputDirectory>
       <includes>

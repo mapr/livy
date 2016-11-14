@@ -19,7 +19,7 @@
 # Runs Livy server.
 
 
-usage="Usage: livy-server (start|stop)"
+usage="Usage: livy-server (start|stop|status)"
 
 export LIVY_HOME=$(cd $(dirname $0)/.. && pwd)
 LIVY_CONF_DIR=${LIVY_CONF_DIR:-"$LIVY_HOME/conf"}
@@ -155,6 +155,17 @@ case $option in
       echo "no livy_server to stop"
     fi
     ;;
+
+  (status)
+    if [ -f $pid ]; then
+      printf "process id $(cat "$pid") \n"
+      exit 0
+    else
+      printf "Livy is not running.\n"
+      exit 1
+    fi
+    ;;
+
 
   (*)
     echo $usage

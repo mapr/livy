@@ -44,7 +44,7 @@ object LivySparkUtils extends Logging {
   private val MIN_VERSION = (1, 6)
   private val MAX_VERSION = (2, 2)
 
-  private val sparkVersionRegex = """version (.*)""".r.unanchored
+  private val sparkVersionRegex = """version ([\d\.]+)""".r.unanchored
   private val scalaVersionRegex = """Scala version (.*), Java""".r.unanchored
 
   /**
