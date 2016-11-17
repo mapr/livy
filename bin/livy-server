@@ -96,7 +96,10 @@ start_livy_server() {
   command="$RUNNER $LIVY_SERVER_JAVA_OPTS -cp $LIVY_CLASSPATH:$CLASSPATH com.cloudera.livy.server.LivyServer"
 
   if [ $1 = "old" ]; then
-    exec $command
+     LIVY_LOG_DIR=${LIVY_LOG_DIR:-${LIVY_HOME}/logs}
+     create_dir $LIVY_LOG_DIR "LIVY_LOG_DIR"
+     log="$LIVY_LOG_DIR/livy-$LIVY_IDENT_STRING-server.out"
+     exec $command >> "$log" 2>&1 < /dev/null
   else
     # get log directory
     LIVY_LOG_DIR=${LIVY_LOG_DIR:-${LIVY_HOME}/logs}
