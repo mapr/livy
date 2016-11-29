@@ -33,3 +33,4 @@
 # - LIVY_NICENESS   Niceness of the Livy server process when running in the background. (Default: 0.)
 export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.7.0/etc/hadoop
 export SPARK_HOME=/opt/mapr/spark/spark-2.0.1
+export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.10.3-src.zip:$SPARK_HOME/python/:$PYTHONPATH
