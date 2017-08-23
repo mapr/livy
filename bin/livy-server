@@ -42,7 +42,7 @@ else
 fi
 
 LIVY_IDENT_STRING=${LIVY_IDENT_STRING:-"$USER"}
-LIVY_PID_DIR=${LIVY_PID_DIR:-"/tmp"}
+LIVY_PID_DIR=${LIVY_PID_DIR:-"/opt/mapr/pid"}
 LIVY_MAX_LOG_FILES=${LIVY_MAX_LOG_FILES:-5}
 pid="$LIVY_PID_DIR/livy-$LIVY_IDENT_STRING-server.pid"
 
@@ -122,13 +122,6 @@ start_livy_server() {
     newpid="$!"
     echo "$newpid" > "$pid"
     sleep 2
-    # Check if the process has died; in that case we'll tail the log so the user can see
-    if [[ ! $(ps -p "$newpid" -o comm=) =~ "java" ]]; then
-      echo "failed to launch $command:"
-      tail -2 "$log" | sed 's/^/  /'
-      echo "full log in $log"
-      rm -rf "$pid"
-    fi
   fi
 }
 
