@@ -130,9 +130,7 @@ for i ; do
     --)
       shift;;
     *)
-      # Invalid arguments passed
-      echo "${USAGE}"
-      exit $RETURN_ERR_ARGS
+      break;;
   esac
 done
 
