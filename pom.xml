@@ -1010,6 +1010,22 @@
         <spark.version>2.0.1</spark.version>
       </properties>
     </profile>
+
+    <profile>
+      <id>mapr-mep-3</id>
+      <properties>
+        <spark.version>2.1.0-mapr-1707</spark.version>
+        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>mapr-mep-4</id>
+      <properties>
+        <spark.version>2.1.0-mapr-1707</spark.version>
+        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
+      </properties>
+    </profile>
   </profiles>
 
 </project>
