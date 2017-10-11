@@ -42,6 +42,11 @@ DAEMON_CONF=${MAPR_HOME}/conf/daemon.conf
 VERSION=0.3.0
 MAPR_CONF_DIR=${MAPR_CONF_DIR:-"$MAPR_HOME/conf"}
 
+# Initialize arguments
+isOnlyRoles=${isOnlyRoles:-0}
+isSecure=0
+customSecure=0
+
 
 function write_version_file() {
     if [ -f $LIVY_VERSION_FILE ]; then
@@ -89,7 +94,7 @@ function check_port(){
          logInfo "Port $PORT is available"
     else
          { set +x; } 2>/dev/null
-         logError "Port $PORT is busy"
+         logErr -both "Port $PORT is busy"
     fi
 }
  
@@ -99,38 +104,42 @@ function create_restart_livy(){
     chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
 }
 
+
 # Parse options
+USAGE="usage: $0 [-h] [-R] [--secure|--unsecure|--customSecure] [-EC <options>]"
 
-USAGE="usage: $0 [-h] [-R]"
-
-
-{ OPTS=`getopt -n "$0" -a -o suhR --long secure,unsecure,customSecure,help,EC -- "$@"`; } 2>/dev/null
-eval set -- "$OPTS"
-
-for i ; do
-  case "$i" in
+while [ ${#} -gt 0 ]; do
+  case "$1" in
     --secure)
       isSecure=1;
+      logWarn -both "Livy does not support security!"
       shift 1;;
     --unsecure)
       isSecure=0;
       shift 1;;
-     --customSecure)
+    --customSecure)
+      isSecure=0;
+      customSecure=1;
       shift 1;;
-    --R)
+    -R)
       isOnlyRoles=1;
       shift 1;;
-    --EC)
-      ecosystemParams="$2"
+    -EC)
+      for i in $2 ; do
+        case $i in
+          -R) isOnlyRoles=1 ;;
+          *) : ;; # unused in Livy
+        esac
+      done
       shift 2;;
-    --h)
+    -h)
       echo "${USAGE}"
       exit $RETURN_SUCCESS
       ;;
-    --)
-      shift;;
     *)
-      break;;
+      # Invalid arguments passed
+      echo "${USAGE}"
+      exit $RETURN_ERR_ARGS
   esac
 done
 
