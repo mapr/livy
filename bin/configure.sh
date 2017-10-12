@@ -96,6 +96,7 @@ function check_port(){
 function create_restart_livy(){
     mkdir -p ${MAPR_CONF_DIR}/restart
     echo "maprcli node services -action restart -name livy -nodes $(hostname)" > "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
+    chmod +x "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
     chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
 }
 
