@@ -53,7 +53,7 @@ livy.spark.deployMode = cluster
 
 # Whether to enable HiveContext in livy interpreter, if it is true hive-site.xml will be detected
 # on user request and then livy server classpath automatically.
-# livy.repl.enableHiveContext =
+livy.repl.enableHiveContext = true
 
 # Recovery mode of Livy. Possible values:
 # off: Default. Turn off recovery. Every time Livy shuts down, it stops and forgets all sessions.
