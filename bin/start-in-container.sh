@@ -29,7 +29,7 @@ get_spark_home() {
     echo "${SPARK_HOME}"
 }
 
-setup_livy_config() {
+setup_livy_conf() {
     local config_template=$1
     local config_file=$2
     if [ ! -e "${config_file}" ] && [ -e "${config_template}" ]; then
