@@ -42,6 +42,15 @@ DAEMON_CONF=${MAPR_HOME}/conf/daemon.conf
 VERSION=0.3.0
 MAPR_CONF_DIR=${MAPR_CONF_DIR:-"$MAPR_HOME/conf"}
 
+LIVY_CONF_TEMPLATES=(
+    "${LIVY_HOME}/conf/livy-client.conf.template     ${LIVY_HOME}/conf/livy-client.conf"
+    "${LIVY_HOME}/conf/livy.conf.template            ${LIVY_HOME}/conf/livy.conf"
+    "${LIVY_HOME}/conf/livy-env.sh.template          ${LIVY_HOME}/conf/livy-env.sh"
+    "${LIVY_HOME}/conf/log4j.properties.template     ${LIVY_HOME}/conf/log4j.properties"
+    "${LIVY_HOME}/conf/spark-blacklist.conf.template ${LIVY_HOME}/conf/spark-blacklist.conf"
+)
+
+
 # Initialize arguments
 isOnlyRoles=${isOnlyRoles:-0}
 isSecure=0
@@ -66,7 +75,7 @@ function change_permissions() {
             chown ${MAPR_USER} ${MAPR_CONF_DIR}
         fi
 
-	if [ ! -z "$MAPR_GROUP" ]; then
+    if [ ! -z "$MAPR_GROUP" ]; then
             chgrp -R ${MAPR_GROUP} ${LIVY_HOME}
             chgrp ${MAPR_GROUP} ${MAPR_CONF_DIR}
         fi
@@ -97,16 +106,24 @@ function check_port(){
          logErr -both "Port $PORT is busy"
     fi
 }
- 
+
 function create_restart_livy(){
     mkdir -p ${MAPR_CONF_DIR}/restart
-    echo > "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart" <<'EOF'
+    cat > "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart" <<'EOF'
 #!/bin/bash
 MAPR_USER=${MAPR_USER:-mapr}
 sudo -u ${MAPR_USER} maprcli node services -action restart -name livy -nodes $(hostname)
 EOF
     chmod +x "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
     chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
+}
+
+function setup_livy_config() {
+    local config_template=$1
+    local config_file=$2
+    if [ ! -e "${config_file}" ] && [ -e "${config_template}" ]; then
+        cp "${config_template}" "${config_file}"
+    fi
 }
 
 
@@ -148,6 +165,10 @@ while [ ${#} -gt 0 ]; do
   esac
 done
 
+
+for config in "${LIVY_CONF_TEMPLATES[@]}"; do
+    setup_livy_conf $config
+done
 
 change_permissions
 write_version_file

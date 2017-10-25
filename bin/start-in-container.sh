@@ -5,6 +5,14 @@ MAPR_HOME=${MAPR_HOME:-/opt/mapr}
 LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
 LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
 
+LIVY_CONF_TEMPLATES=(
+    "${LIVY_HOME}/conf/livy-client.conf.template     ${LIVY_HOME}/conf/livy-client.conf"
+    "${LIVY_HOME}/conf/livy.conf.container_template  ${LIVY_HOME}/conf/livy.conf"
+    "${LIVY_HOME}/conf/livy-env.sh.template          ${LIVY_HOME}/conf/livy-env.sh"
+    "${LIVY_HOME}/conf/log4j.properties.template     ${LIVY_HOME}/conf/log4j.properties"
+    "${LIVY_HOME}/conf/spark-blacklist.conf.template ${LIVY_HOME}/conf/spark-blacklist.conf"
+)
+
 
 get_spark_home() {
     local SPARK_HOME=""
@@ -19,6 +27,14 @@ get_spark_home() {
         [ -e "${spark_home_legacy}" ] && SPARK_HOME="${spark_home_legacy}"
     fi
     echo "${SPARK_HOME}"
+}
+
+setup_livy_config() {
+    local config_template=$1
+    local config_file=$2
+    if [ ! -e "${config_file}" ] && [ -e "${config_template}" ]; then
+        cp "${config_template}" "${config_file}"
+    fi
 }
 
 
@@ -46,7 +62,9 @@ if [ -e "${SPARK_HOME}" ]; then
 fi
 
 
-cp "${LIVY_HOME}/conf/livy.conf.container_template" "${LIVY_HOME}/conf/livy.conf"
+for config in "${LIVY_CONF_TEMPLATES[@]}"; do
+    setup_livy_conf $config
+done
 
 
 exec "${LIVY_HOME}/bin/livy-server" start
