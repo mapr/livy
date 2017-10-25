@@ -81,6 +81,3 @@
 # livy.rsc.job_cancel.trigger_interval = 100ms
 # Time before a cancelled a Job is forced into a Cancelled state
 # livy.rsc.job_cancel.timeout = 30s
-
-# Number of statements kept in driver's memory
-# livy.rsc.retained_statements = 100
