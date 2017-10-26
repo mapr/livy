@@ -6,11 +6,11 @@ LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
 LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
 
 LIVY_CONF_TEMPLATES=(
-    "${LIVY_HOME}/conf/livy-client.conf.template     ${LIVY_HOME}/conf/livy-client.conf"
-    "${LIVY_HOME}/conf/livy.conf.container_template  ${LIVY_HOME}/conf/livy.conf"
-    "${LIVY_HOME}/conf/livy-env.sh.template          ${LIVY_HOME}/conf/livy-env.sh"
-    "${LIVY_HOME}/conf/log4j.properties.template     ${LIVY_HOME}/conf/log4j.properties"
-    "${LIVY_HOME}/conf/spark-blacklist.conf.template ${LIVY_HOME}/conf/spark-blacklist.conf"
+    "${LIVY_HOME}/conf/livy-client.conf.container_template ${LIVY_HOME}/conf/livy-client.conf"
+    "${LIVY_HOME}/conf/livy.conf.container_template        ${LIVY_HOME}/conf/livy.conf"
+    "${LIVY_HOME}/conf/livy-env.sh.template                ${LIVY_HOME}/conf/livy-env.sh"
+    "${LIVY_HOME}/conf/log4j.properties.template           ${LIVY_HOME}/conf/log4j.properties"
+    "${LIVY_HOME}/conf/spark-blacklist.conf.template       ${LIVY_HOME}/conf/spark-blacklist.conf"
 )
 
 
@@ -65,6 +65,11 @@ fi
 for config in "${LIVY_CONF_TEMPLATES[@]}"; do
     setup_livy_conf $config
 done
+
+
+if [ -n "${HOST_IP}" ]; then
+    sed -i -r "s|# (.*) __LIVY_HOST_IP__|\1 ${HOST_IP}|" "${LIVY_HOME}/conf/livy-client.conf"
+fi
 
 
 exec "${LIVY_HOME}/bin/livy-server" start

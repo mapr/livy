@@ -65,7 +65,7 @@
 # livy.rsc.proxy_user =
 
 # Host or IP adress of the rpc server
-# livy.rsc.rpc.server.address =
+# livy.rsc.rpc.server.address = __LIVY_HOST_IP__
 # How long the rsc client will wait when attempting to connect to the Livy server
 # livy.rsc.server.connect.timeout = 90s
 
