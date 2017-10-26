@@ -83,7 +83,7 @@ function change_permissions() {
     fi
 }
 
-function setup_warden_config() {
+function setup_warden_conf() {
     if [ -f $WARDEN_LIVY_DEST_CONF ]; then
         rm -f $WARDEN_LIVY_DEST_CONF
     fi
@@ -118,7 +118,7 @@ EOF
     chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
 }
 
-function setup_livy_config() {
+function setup_livy_conf() {
     local config_template=$1
     local config_file=$2
     if [ ! -e "${config_file}" ] && [ -e "${config_template}" ]; then
@@ -172,7 +172,7 @@ done
 
 change_permissions
 write_version_file
-setup_warden_config
+setup_warden_conf
 create_restart_livy
 
 exit $RETURN_SUCCESS
