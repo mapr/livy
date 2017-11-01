@@ -23,7 +23,7 @@
 
   <groupId>com.cloudera.livy</groupId>
   <artifactId>livy-main</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.0-mapr-1710</version>
   <packaging>pom</packaging>
 
   <name>livy-main</name>
@@ -42,7 +42,7 @@
   </organization>
 
   <properties>
-    <hadoop.version>2.7.0-mapr-1607</hadoop.version>
+    <hadoop.version>2.7.0-mapr-1710</hadoop.version>
     <hadoop.scope>compile</hadoop.scope>
     <spark.version>2.0.1-mapr-1611rc3</spark.version>
     <commons-codec.version>1.9</commons-codec.version>
@@ -1014,16 +1014,16 @@
     <profile>
       <id>mapr-mep-3</id>
       <properties>
-        <spark.version>2.1.0-mapr-1707</spark.version>
-        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
+        <spark.version>2.1.0-mapr-1710</spark.version>
+        <hadoop.version>2.7.0-mapr-1710</hadoop.version>
       </properties>
     </profile>
 
     <profile>
       <id>mapr-mep-4</id>
       <properties>
-        <spark.version>2.1.0-mapr-1707</spark.version>
-        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
+        <spark.version>2.1.0-mapr-1710</spark.version>
+        <hadoop.version>2.7.0-mapr-1710</hadoop.version>
       </properties>
     </profile>
   </profiles>
