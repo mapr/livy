@@ -88,7 +88,3 @@ livy.spark.deployMode = cluster
 #
 # Days to keep Livy server request logs.
 # livy.server.request-log-retain.days = 5
-
-# Default path to python2 and python3
-livy.spark.yarn.appMasterEnv.PYSPARK2_PYTHON=/usr/bin/python2
-livy.spark.yarn.appMasterEnv.PYSPARK3_PYTHON=/usr/bin/python3
