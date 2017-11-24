@@ -35,6 +35,3 @@ export CLASSPATH=$(mapr classpath)
 export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.7.0/etc/hadoop
 export SPARK_HOME=/opt/mapr/spark/spark-2.1.0
 export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$SPARK_HOME/python/:$PYTHONPATH
-
-export PYSPARK2_PYTHON=/usr/bin/python2
-export PYSPARK3_PYTHON=/usr/bin/python3
