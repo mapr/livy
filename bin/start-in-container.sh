@@ -79,10 +79,10 @@ spark_set_property() {
     local property_name="$1"
     local property_value="$2"
     if grep -q "^\s*${property_name}\s*" "${spark_conf}"; then
-        # Modify property
+        # modify property
         sed -i -r "s|^\s*${property_name}.*$|${property_name} ${property_value}|" "${spark_conf}"
     else
-        # Add property
+        # add property
         echo "# Following line added by Livy start-in-container.sh" >> "${spark_conf}"
         echo "${property_name} ${property_value}" >> "${spark_conf}"
     fi
@@ -93,12 +93,16 @@ spark_append_property() {
     local property_name="$1"
     local property_value="$2"
     local old_value=$(spark_get_property "${property_name}")
-    if [ -z "${old_value}" ] || [ "${old_value}" = "${property_value} "]; then
-        # New value
-        local new_value="${property_value}"
+    local new_value=""
+    if [ -z "${old_value}" ]; then
+        # new value
+        new_value="${property_value}"
+    elif ( echo "${old_value}" | grep -q -F "${new_value}" ); then
+        # nothing to do
+        new_value="${old_value}"
     else
-        # Modify value
-        local new_vlue="${old_value},${property_value}"
+        # modify value
+        new_value="${old_value},${property_value}"
     fi
     spark_set_property "${property_name}" "${new_value}"
 }
