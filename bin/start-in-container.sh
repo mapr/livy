@@ -98,7 +98,7 @@ spark_append_property() {
     if [ -z "${old_value}" ]; then
         # new value
         new_value="${property_value}"
-    elif ( echo "${old_value}" | grep -q -F "${new_value}" ); then
+    elif ( echo "${old_value}" | grep -q -F "${property_value}" ); then
         # nothing to do
         new_value="${old_value}"
     else
