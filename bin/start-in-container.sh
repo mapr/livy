@@ -21,6 +21,17 @@ LIVY_CONF_TEMPLATES=(
     "${LIVY_HOME}/conf/spark-blacklist.conf.template"
 )
 
+REMOTE_ARCHIVES_DIR="/user/${MAPR_CONTAINER_USER}/zeppelin/archives"
+
+LOCAL_ARCHIVES_DIR="$(getent passwd $MAPR_CONTAINER_USER | cut -d':' -f6)/zeppelin/archives"
+LOCAL_ARCHIVES_ZIPDIR="${LOCAL_ARCHIVES_DIR}/zip"
+
+log_warn() {
+    echo "WARN: $@"
+}
+log_msg() {
+    echo "MSG: $@"
+}
 
 livy_init_confs() {
     local i=0
@@ -47,6 +58,9 @@ livy_subs_client_conf() {
 hadoop_fs_mkdir_p() {
     hadoop fs -mkdir -p "$1" &>/dev/null
 }
+hadoop_fs_get() {
+    hadoop fs -get "$1" "$2" &>/dev/null
+}
 hadoop_fs_put() {
     hadoop fs -put "$1" "$2" &>/dev/null
 }
@@ -54,19 +68,19 @@ hadoop_fs_test_e() {
     hadoop fs -test -e "$1" &>/dev/null
 }
 
-spark_get_home() {
-    local SPARK_HOME=""
-    local SPARK_VERSION=""
-    local spark_home_legacy=""
-    if [ -e "${MAPR_HOME}/spark/sparkversion" ]; then
-        SPARK_VERSION=$(cat "${MAPR_HOME}/spark/sparkversion")
-        SPARK_HOME="${MAPR_HOME}/spark/spark-${SPARK_VERSION}"
+component_get_home() {
+    local comp_name="$1"
+    local comp_home=""
+    local comp_version=""
+    local comp_home_legacy=""
+    if [ -e "${MAPR_HOME}/${comp_name}/${comp_name}version" ]; then
+        comp_version=$(cat "${MAPR_HOME}/${comp_name}/${comp_name}version")
+        comp_home="${MAPR_HOME}/${comp_name}/${comp_name}-${comp_version}"
     else
-        # Legacy way to find SPARK_HOME
-        spark_home_legacy=$(find "${MAPR_HOME}/spark/" -maxdepth 1 -name "spark-*" -type d | tail -n1)
-        [ -e "${spark_home_legacy}" ] && SPARK_HOME="${spark_home_legacy}"
+        comp_home_legacy=$(find "${MAPR_HOME}/${comp_name}/" -maxdepth 1 -name "${comp_name}-*" -type d | tail -n1)
+        [ -e "${comp_home_legacy}" ] && comp_home="${comp_home_legacy}"
     fi
-    echo "${SPARK_HOME}"
+    echo "${comp_home}"
 }
 
 spark_get_property() {
@@ -121,54 +135,100 @@ spark_configure_hive_site() {
     fi
 }
 
-spark_configure_pyspark() {
-    local spark_conf="${SPARK_HOME}/conf/spark-defaults.conf"
-    local env_path_local="$1"
-    local env_filename=$(basename "${env_path_local}")
-    local env_path_remote="${ZEPPELIN_ARCHIVES_DIR}/${env_filename}"
-    if ! hadoop_fs_test_e "${env_path_remote}"; then
-        hadoop_fs_put "${env_path_local}" "${env_path_remote}"
+out_archive_local=""
+out_archive_extracted=""
+out_archive_remote=""
+out_archive_filename=""
+setup_archive() {
+    local archive_path="$1"
+    local archive_filename=$(basename "$archive_path")
+    local archive_local=""
+    local archive_remote=""
+    if hadoop_fs_test_e "$archive_path"; then
+        archive_remote="$archive_path"
+        archive_local="${LOCAL_ARCHIVES_ZIPDIR}/${archive_filename}"
+        if [ ! -e "$archive_local" ]; then
+            log_msg "Copying archive from MapR-FS: ${archive_remote} -> ${archive_local}"
+            hadoop_fs_get "$archive_remote" "$archive_local"
+        else
+            log_msg "Skip copying archive from MapR-FS as it already exists"
+        fi
+    elif [ -e "$archive_path" ]; then
+        archive_local="$archive_path"
+        archive_remote="${REMOTE_ARCHIVES_DIR}/${archive_filename}"
+        # Copy archive to MapR-FS
+        if ! hadoop_fs_test_e "$archive_remote"; then
+            log_msg "Copying archive to MapR-FS: ${archive_local} -> ${archive_remote}"
+            hadoop_fs_put "$archive_local" "$archive_remote"
+        else
+            log_msg "Skip copying archive to MapR-FS as it already exists"
+        fi
+    else
+        log_err "Archive '${archive_path}' not found"
     fi
-    spark_append_property "spark.yarn.dist.archives" "maprfs://${env_path_remote}#ZEP_PYSPARK_PYTHON"
-    spark_set_property "spark.yarn.appMasterEnv.PYSPARK_PYTHON" "./ZEP_PYSPARK_PYTHON/bin/python2"
-}
+    local archive_extracted="${LOCAL_ARCHIVES_DIR}/${archive_filename}"
+    if [ ! -e "$archive_extracted" ]; then
+        log_msg "Extracing archive locally"
+        mkdir -p "$archive_extracted"
+        unzip -qq "$archive_local" -d "$archive_extracted"
+    else
+        log_msg "Skip extracting archive locally as it already exists"
+    fi
 
-spark_configure_pyspark3() {
-    local spark_conf="${SPARK_HOME}/conf/spark-defaults.conf"
-    local env_path_local="$1"
-    local env_filename=$(basename "${env_path_local}")
-    local env_path_remote="${ZEPPELIN_ARCHIVES_DIR}/${env_filename}"
-    if ! hadoop_fs_test_e "${env_path_remote}"; then
-        hadoop_fs_put "${env_path_local}" "${env_path_remote}"
-    fi
-    spark_append_property "spark.yarn.dist.archives" "maprfs://${env_path_remote}#ZEP_PYSPARK3_PYTHON"
-    spark_set_property "spark.yarn.appMasterEnv.PYSPARK3_PYTHON" "./ZEP_PYSPARK3_PYTHON/bin/python3"
+    out_archive_local="$archive_local"
+    out_archive_extracted="$archive_extracted"
+    out_archive_remote=$(echo "$archive_remote" | sed "s|maprfs://||")
+    out_archive_filename="$archive_filename"
 }
 
 spark_configure_custom_envs() {
     if ! hadoop_fs_test_e "/user/${MAPR_CONTAINER_USER}/"; then
-        echo "/user/${MAPR_CONTAINER_USER} does not exist in MapR-FS"
+        log_warn "/user/${MAPR_CONTAINER_USER} does not exist in MapR-FS"
         return 1
     fi
-    ZEPPELIN_ARCHIVES_DIR="/user/${MAPR_CONTAINER_USER}/zeppelin/archives"
-    hadoop_fs_mkdir_p "${ZEPPELIN_ARCHIVES_DIR}"
 
-    if [ -n "${ZEPPELIN_PYSPARK_ARCHIVE}" ]; then
-        spark_configure_pyspark "${ZEPPELIN_PYSPARK_ARCHIVE}"
+    local zeppelin_env_sh="$(component_get_home 'zeppelin')/conf/zeppelin-env.sh"
+
+    hadoop_fs_mkdir_p "${REMOTE_ARCHIVES_DIR}"
+    mkdir -p "$LOCAL_ARCHIVES_DIR" "$LOCAL_ARCHIVES_ZIPDIR"
+
+    if [ -n "$ZEPPELIN_ARCHIVE_PYTHON" ]; then
+        log_msg "Setting up Python archive"
+        setup_archive "$ZEPPELIN_ARCHIVE_PYTHON"
+        log_msg "Configuring Saprk to use custom Python"
+        spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
+        spark_set_property "spark.yarn.appMasterEnv.PYSPARK_PYTHON" "./${out_archive_filename}/bin/python"
+        log_msg "Configuring Zeppelin to use custom Python with Spark interpreter"
+        if [ -e "$zeppelin_env_sh" ]; then
+            cat >> "$zeppelin_env_sh" <<EOF
+# Following lines added by livy startup script
+export PYSPARK_PYTHON='./${out_archive_filename}/bin/python'
+export PYSPARK_DRIVER_PYTHON='${out_archive_extracted}/bin/python'
+
+EOF
+        fi
+    else
+        log_msg "Using default Python"
     fi
 
-    if [ -n "${ZEPPELIN_PYSPARK3_ARCHIVE}" ]; then
-        spark_configure_pyspark3 "${ZEPPELIN_PYSPARK3_ARCHIVE}"
+    if [ -n "$ZEPPELIN_ARCHIVE_PYTHON3" ]; then
+        log_msg "Setting up Python 3 archive"
+        setup_archive "$ZEPPELIN_ARCHIVE_PYTHON3"
+        log_msg "Configuring Spark to use custom Python 3"
+        spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
+        spark_set_property "spark.yarn.appMasterEnv.PYSPARK3_PYTHON" "./${out_archive_filename}/bin/python3"
+    else
+        log_msg "Using default Python 3"
     fi
 }
 
 
-SPARK_HOME=$(spark_get_home)
+SPARK_HOME=$(component_get_home "spark")
 if [ -e "${SPARK_HOME}" ]; then
     spark_configure_hive_site
     spark_configure_custom_envs
 else
-    echo '$SPARK_HOME can not be found'
+    log_warn '$SPARK_HOME can not be found'
 fi
 
 livy_init_confs
