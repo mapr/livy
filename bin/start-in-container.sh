@@ -21,6 +21,9 @@ LIVY_CONF_TEMPLATES=(
     "${LIVY_HOME}/conf/spark-blacklist.conf.template"
 )
 
+LIVY_RSC_PORT_RANGE="${LIVY_RSC_PORT_RANGE:-'10000~10010'}"
+LIVY_RSC_PORT_RANGE=$(echo $LIVY_RSC_PORT_RANGE | sed "s/-/~/")
+
 REMOTE_ARCHIVES_DIR="/user/${MAPR_CONTAINER_USER}/zeppelin/archives"
 
 LOCAL_ARCHIVES_DIR="$(getent passwd $MAPR_CONTAINER_USER | cut -d':' -f6)/zeppelin/archives"
@@ -232,7 +235,8 @@ else
 fi
 
 livy_init_confs
-livy_subs_client_conf "__LIVY_HOST_IP__" "${HOST_IP}"
+livy_subs_client_conf "__LIVY_HOST_IP__" "$HOST_IP"
+livy_subs_client_conf "__LIVY_RSC_PORT_RANGE__" "$LIVY_RSC_PORT_RANGE"
 
 
 exec "${LIVY_HOME}/bin/livy-server" start
