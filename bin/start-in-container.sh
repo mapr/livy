@@ -24,6 +24,8 @@ LIVY_CONF_TEMPLATES=(
 LIVY_RSC_PORT_RANGE=${LIVY_RSC_PORT_RANGE:-"10000~10010"}
 LIVY_RSC_PORT_RANGE=$(echo $LIVY_RSC_PORT_RANGE | sed "s/-/~/")
 
+SPARK_PORT_RANGE="${SPARK_PORT_RANGE:-11000~11010}"
+
 REMOTE_ARCHIVES_DIR="/user/${MAPR_CONTAINER_USER}/zeppelin/archives"
 
 LOCAL_ARCHIVES_DIR="$(getent passwd $MAPR_CONTAINER_USER | cut -d':' -f6)/zeppelin/archives"
@@ -34,6 +36,9 @@ log_warn() {
 }
 log_msg() {
     echo "MSG: $@"
+}
+log_err() {
+    echo "ERR: $@"
 }
 
 livy_init_confs() {
@@ -168,6 +173,7 @@ setup_archive() {
         fi
     else
         log_err "Archive '${archive_path}' not found"
+        return 1
     fi
     local archive_extracted="${LOCAL_ARCHIVES_DIR}/${archive_filename}"
     if [ ! -e "$archive_extracted" ]; then
@@ -182,6 +188,34 @@ setup_archive() {
     out_archive_extracted="$archive_extracted"
     out_archive_remote=$(echo "$archive_remote" | sed "s|maprfs://||")
     out_archive_filename="$archive_filename"
+    return 0
+}
+
+spark_configure_python2() {
+    log_msg "Setting up Python archive"
+    setup_archive "$ZEPPELIN_ARCHIVE_PYTHON" || return 1
+    log_msg "Configuring Saprk to use custom Python"
+    spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
+    spark_set_property "spark.yarn.appMasterEnv.PYSPARK_PYTHON" "./${out_archive_filename}/bin/python"
+    log_msg "Configuring Zeppelin to use custom Python with Spark interpreter"
+    if [ -e "$zeppelin_env_sh" ]; then
+        cat >> "$zeppelin_env_sh" <<EOF
+# Following lines added by livy startup script
+export PYSPARK_PYTHON='./${out_archive_filename}/bin/python'
+export PYSPARK_DRIVER_PYTHON='${out_archive_extracted}/bin/python'
+
+EOF
+    fi
+    return 0
+}
+
+spark_configure_python3() {
+    log_msg "Setting up Python 3 archive"
+    setup_archive "$ZEPPELIN_ARCHIVE_PYTHON3" || return 1
+    log_msg "Configuring Spark to use custom Python 3"
+    spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
+    spark_set_property "spark.yarn.appMasterEnv.PYSPARK3_PYTHON" "./${out_archive_filename}/bin/python3"
+    return 0
 }
 
 spark_configure_custom_envs() {
@@ -196,30 +230,13 @@ spark_configure_custom_envs() {
     mkdir -p "$LOCAL_ARCHIVES_DIR" "$LOCAL_ARCHIVES_ZIPDIR"
 
     if [ -n "$ZEPPELIN_ARCHIVE_PYTHON" ]; then
-        log_msg "Setting up Python archive"
-        setup_archive "$ZEPPELIN_ARCHIVE_PYTHON"
-        log_msg "Configuring Saprk to use custom Python"
-        spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
-        spark_set_property "spark.yarn.appMasterEnv.PYSPARK_PYTHON" "./${out_archive_filename}/bin/python"
-        log_msg "Configuring Zeppelin to use custom Python with Spark interpreter"
-        if [ -e "$zeppelin_env_sh" ]; then
-            cat >> "$zeppelin_env_sh" <<EOF
-# Following lines added by livy startup script
-export PYSPARK_PYTHON='./${out_archive_filename}/bin/python'
-export PYSPARK_DRIVER_PYTHON='${out_archive_extracted}/bin/python'
-
-EOF
-        fi
+        spark_configure_python2
     else
         log_msg "Using default Python"
     fi
 
     if [ -n "$ZEPPELIN_ARCHIVE_PYTHON3" ]; then
-        log_msg "Setting up Python 3 archive"
-        setup_archive "$ZEPPELIN_ARCHIVE_PYTHON3"
-        log_msg "Configuring Spark to use custom Python 3"
-        spark_append_property "spark.yarn.dist.archives" "maprfs://${out_archive_remote}"
-        spark_set_property "spark.yarn.appMasterEnv.PYSPARK3_PYTHON" "./${out_archive_filename}/bin/python3"
+        spark_configure_python3
     else
         log_msg "Using default Python 3"
     fi
@@ -230,6 +247,18 @@ SPARK_HOME=$(component_get_home "spark")
 if [ -e "${SPARK_HOME}" ]; then
     spark_configure_hive_site
     spark_configure_custom_envs
+
+    if [ -n "$HOST_IP" ]; then
+        spark_ports=$(echo "$SPARK_PORT_RANGE" | sed 's/[~-]/\n/')
+        read -a ports <<< $(seq $spark_ports)
+        spark_set_property "spark.driver.bindAddress" "0.0.0.0"
+        spark_set_property "spark.driver.host" "${HOST_IP}"
+        spark_set_property "spark.driver.port" "${ports[0]}"
+        spark_set_property "spark.blockManager.port" "${ports[1]}"
+        spark_set_property "spark.ui.port" "${ports[2]}"
+    else
+      log_err "Can't configure Spark networking because HOST_IP is not set"
+    fi
 else
     log_warn '$SPARK_HOME can not be found'
 fi
