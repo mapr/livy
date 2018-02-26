@@ -179,7 +179,7 @@ setup_archive() {
     if [ ! -e "$archive_extracted" ]; then
         log_msg "Extracing archive locally"
         mkdir -p "$archive_extracted"
-        unzip -qq "$archive_local" -d "$archive_extracted"
+        unzip -qq "$archive_local" -d "$archive_extracted" || return 1
     else
         log_msg "Skip extracting archive locally as it already exists"
     fi
@@ -230,13 +230,13 @@ spark_configure_custom_envs() {
     mkdir -p "$LOCAL_ARCHIVES_DIR" "$LOCAL_ARCHIVES_ZIPDIR"
 
     if [ -n "$ZEPPELIN_ARCHIVE_PYTHON" ]; then
-        spark_configure_python2
+        spark_configure_python2 || log_msg "Using default Python"
     else
         log_msg "Using default Python"
     fi
 
     if [ -n "$ZEPPELIN_ARCHIVE_PYTHON3" ]; then
-        spark_configure_python3
+        spark_configure_python3 || log_msg "Using default Python 3"
     else
         log_msg "Using default Python 3"
     fi
