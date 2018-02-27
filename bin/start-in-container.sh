@@ -134,7 +134,7 @@ spark_configure_hive_site() {
     local spark_conf="${SPARK_HOME}/conf/spark-defaults.conf"
     local spark_hive_site="${SPARK_HOME}/conf/hive-site.xml"
     if [ ! -e "${spark_hive_site}" ]; then
-        cp "${LIVY_HOME}/conf.new/hive-site.xml.stub" "${spark_hive_site}"
+        cp "${LIVY_HOME}/conf/hive-site.xml.container_stub" "${spark_hive_site}"
     fi
     local spark_yarn_dist_files=$(spark_get_property "spark.yarn.dist.files")
     # Check if no "hive-site.xml" in "spark.yarn.dist.files"
