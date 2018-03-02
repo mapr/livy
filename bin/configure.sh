@@ -92,27 +92,18 @@ setup_warden_conf() {
   chgrp ${MAPR_GROUP} ${WARDEN_LIVY_DEST_CONF}
 }
 
-check_port(){
-  logInfo "Checking that port $1 is available"
-  PORT="$1"
-  if checkNetworkPortAvailability "$PORT" 2>/dev/null; then  
-    { set +x; } 2>/dev/null
-    logInfo "Port $PORT is available"
-  else
-    { set +x; } 2>/dev/null
-    logErr -both "Port $PORT is busy"
-  fi
-}
-
 create_restart_livy(){
   mkdir -p ${MAPR_CONF_DIR}/restart
-  cat > "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart" <<'EOF'
+  cat > "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart" <<'EOF'
 #!/bin/bash
-MAPR_USER=${MAPR_USER:-mapr}
-sudo -u ${MAPR_USER} maprcli node services -action restart -name livy -nodes $(hostname)
+MAPR_HOME="${MAPR_HOME:-/opt/mapr}"
+if [ -z "${MAPR_TICKETFILE_LOCATION}" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
+    export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
+fi
+maprcli node services -action restart -name livy -nodes $(hostname)
 EOF
-  chmod +x "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
-  chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-0.3.0.restart"
+  chmod +x "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
+  chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
 }
 
 livy_init_confs() {
