@@ -177,7 +177,7 @@ setup_archive() {
     fi
     local archive_extracted="${LOCAL_ARCHIVES_DIR}/${archive_filename}"
     if [ ! -e "$archive_extracted" ]; then
-        log_msg "Extracing archive locally"
+        log_msg "Extracting archive locally"
         mkdir -p "$archive_extracted"
         unzip -qq "$archive_local" -d "$archive_extracted" || return 1
     else
