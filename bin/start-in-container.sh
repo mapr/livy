@@ -24,6 +24,13 @@ LIVY_CONF_TEMPLATES=(
 LIVY_RSC_PORT_RANGE=${LIVY_RSC_PORT_RANGE:-"10000~10010"}
 LIVY_RSC_PORT_RANGE=$(echo $LIVY_RSC_PORT_RANGE | sed "s/-/~/")
 
+# Implicitly increase LIVY_RSC_PORT_RANGE because of LIVY-451
+livy_rsc_port_min=$(echo "$LIVY_RSC_PORT_RANGE" | cut -d '~' -f 1)
+livy_rsc_port_max=$(echo "$LIVY_RSC_PORT_RANGE" | cut -d '~' -f 2)
+livy_rsc_port_max_new=$(expr "$livy_rsc_port_max" + 10)
+LIVY_RSC_PORT_RANGE_NEW="${livy_rsc_port_min}~${livy_rsc_port_max_new}"
+
+
 SPARK_PORT_RANGE="${SPARK_PORT_RANGE:-11000~11010}"
 
 REMOTE_ARCHIVES_DIR="/user/${MAPR_CONTAINER_USER}/zeppelin/archives"
@@ -265,7 +272,7 @@ fi
 
 livy_init_confs
 livy_subs_client_conf "__LIVY_HOST_IP__" "$HOST_IP"
-livy_subs_client_conf "__LIVY_RSC_PORT_RANGE__" "$LIVY_RSC_PORT_RANGE"
+livy_subs_client_conf "__LIVY_RSC_PORT_RANGE__" "$LIVY_RSC_PORT_RANGE_NEW"
 
 
 exec "${LIVY_HOME}/bin/livy-server" start
