@@ -43,7 +43,7 @@ component_get_home() {
       comp_version=$(cat "${MAPR_HOME}/${comp_name}/${comp_name}version")
       comp_home="${MAPR_HOME}/${comp_name}/${comp_name}-${comp_version}"
   else
-    comp_home_legacy=$(find "${MAPR_HOME}/${comp_name}/" -maxdepth 1 -name "${comp_name}-*" -type d | tail -n1)
+    comp_home_legacy=$(find "${MAPR_HOME}/${comp_name}/" -maxdepth 1 -name "${comp_name}-*" -type d | sort --version-sort | tail -n1)
     [ -e "${comp_home_legacy}" ] && comp_home="${comp_home_legacy}"
   fi
   echo "${comp_home}"
