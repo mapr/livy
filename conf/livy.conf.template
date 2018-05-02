@@ -139,3 +139,7 @@ livy.spark.deploy-mode = cluster
 # A list of users with comma separated has the permission to view other user's infomation, like
 # submitted session state, statement results.
 # livy.server.access-control.view-users =
+
+# Authentication mechanism for Livy Server.
+# Available values: multiauth, kerberos or blank value to disable authentication.
+# livy.server.auth.type =

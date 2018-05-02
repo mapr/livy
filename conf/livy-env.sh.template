@@ -48,6 +48,9 @@ component_get_home() {
   echo "${comp_home}"
 }
 
+. "${MAPR_HOME}/conf/env.sh"
+export LIVY_SERVER_JAVA_OPTS="$MAPR_ECOSYSTEM_SERVER_LOGIN_OPTS -Djava.library.path=${MAPR_HOME}/lib"
+
 
 export CLASSPATH=$(mapr classpath)
 export HADOOP_CONF_DIR="$(component_get_home 'hadoop')/etc/hadoop"

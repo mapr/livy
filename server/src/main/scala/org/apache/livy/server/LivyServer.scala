@@ -90,7 +90,7 @@ class LivyServer extends Logging {
     livyConf.set(LIVY_SPARK_SCALA_VERSION.key,
       sparkScalaVersion(formattedSparkVersion, scalaVersionFromSparkSubmit, livyConf))
 
-    if (UserGroupInformation.isSecurityEnabled) {
+    if (UserGroupInformation.isSecurityEnabled && livyConf.get(AUTH_TYPE) == KerberosAuthenticationHandler.TYPE) {
       // If Hadoop security is enabled, run kinit periodically. runKinit() should be called
       // before any Hadoop operation, otherwise Kerberos exception will be thrown.
       executor = Executors.newScheduledThreadPool(1,
@@ -236,6 +236,12 @@ class LivyServer extends Logging {
           livyConf.get(AUTH_KERBEROS_NAME_RULES))
         server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
         info(s"SPNEGO auth enabled (principal = $principal)")
+
+      case authType @ "multiauth" =>
+        val holder = new FilterHolder(new AuthenticationFilter())
+        holder.setInitParameter(AuthenticationFilter.AUTH_TYPE, "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler")
+        server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
+        info(s"multiauth enabled")
 
      case null =>
         // Nothing to do.
