@@ -30,3 +30,26 @@
 #                     names. (Default: name of the user starting Livy).
 # - LIVY_MAX_LOG_FILES Max number of log file to keep in the log directory. (Default: 5.)
 # - LIVY_NICENESS   Niceness of the Livy server process when running in the background. (Default: 0.)
+
+MAPR_HOME="${MAPR_HOME:-/opt/mapr}"
+
+component_get_home() {
+  local comp_name="$1"
+  local comp_home=""
+  local comp_version=""
+  local comp_home_legacy=""
+  if [ -e "${MAPR_HOME}/${comp_name}/${comp_name}version" ]; then
+      comp_version=$(cat "${MAPR_HOME}/${comp_name}/${comp_name}version")
+      comp_home="${MAPR_HOME}/${comp_name}/${comp_name}-${comp_version}"
+  else
+    comp_home_legacy=$(find "${MAPR_HOME}/${comp_name}/" -maxdepth 1 -name "${comp_name}-*" -type d | tail -n1)
+    [ -e "${comp_home_legacy}" ] && comp_home="${comp_home_legacy}"
+  fi
+  echo "${comp_home}"
+}
+
+
+export CLASSPATH=$(mapr classpath)
+export HADOOP_CONF_DIR="$(component_get_home 'hadoop')/etc/hadoop"
+export SPARK_HOME="$(component_get_home 'spark')"
+export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$SPARK_HOME/python/:$PYTHONPATH
