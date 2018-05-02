@@ -1216,6 +1216,28 @@
   </profile>
 
     <profile>
+      <id>vendor-repo-mapr</id>
+      <repositories>
+        <repository>
+          <id>mapr-releases</id>
+          <url>http://repository.mapr.com/maven/</url>
+        </repository>
+      </repositories>
+    </profile>
+
+    <profile>
+      <id>mapr-mep-600</id>
+      <properties>
+        <spark.version>2.2.1-mapr-1803</spark.version>
+        <hadoop.version>2.7.0-mapr-1803</hadoop.version>
+
+        <scala-2.11.version>2.11.8</scala-2.11.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>${scala-2.11.version}</scala.version>
+      </properties>
+    </profile>
+
+    <profile>
       <id>public-docs</id>
       <activation>
         <property>
