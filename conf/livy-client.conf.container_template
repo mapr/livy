@@ -73,7 +73,8 @@
 # Address for the RSC driver to connect back with it's connection info.
 # livy.rsc.launcher.address =
 # Port Range on which RPC will launch . Port range in inclusive of start and end port .
-# livy.rsc.launcher.port.range = 10000~10110
+# Port range should include more ports than were exposed via "--publish" option of "docker run" because of LIVY-451.
+# livy.rsc.launcher.port.range = __LIVY_RSC_PORT_RANGE__
 
 # How long will the RSC wait for a connection for a Livy server before shutting itself down.
 # livy.rsc.server.idle-timeout = 10m
@@ -82,7 +83,7 @@
 # livy.rsc.proxy-user =
 
 # Host or IP adress of the rpc server
-# livy.rsc.rpc.server.address =
+# livy.rsc.rpc.server.address = __LIVY_HOST_IP__
 # How long the rsc client will wait when attempting to connect to the Livy server
 # livy.rsc.server.connect.timeout = 90s
 

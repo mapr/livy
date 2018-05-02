@@ -85,7 +85,7 @@ livy.spark.deploy-mode = cluster
 
 # Whether to enable HiveContext in livy interpreter, if it is true hive-site.xml will be detected
 # on user request and then livy server classpath automatically.
-# livy.repl.enable-hive-context =
+livy.repl.enable-hive-context = true
 
 # Recovery mode of Livy. Possible values:
 # off: Default. Turn off recovery. Every time Livy shuts down, it stops and forgets all sessions.
@@ -107,7 +107,7 @@ livy.spark.deploy-mode = cluster
 # livy.server.recovery.state-store.url =
 
 # If Livy can't find the yarn app within this time, consider it lost.
-# livy.server.yarn.app-lookup-timeout = 120s
+livy.server.yarn.app-lookup-timeout = 300s
 # When the cluster is busy, we may fail to launch yarn app in app-lookup-timeout, then it would
 # cause session leakage, so we need to check session leakage.
 # How long to check livy session leakage
