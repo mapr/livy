@@ -5,8 +5,8 @@
 #
 # Configure script for Hue Livy
 #
-# This script is normally run by the core configure.sh to setup Livy 
-# connect during install. If it is run standalone, need to correctly 
+# This script is normally run by the core configure.sh to setup Livy
+# connect during install. If it is run standalone, need to correctly
 # initialize the variables that it normally inherits from the master
 # configure.sh
 #######################################################################
@@ -16,14 +16,13 @@ RETURN_SUCCESS=0
 RETURN_ERR_MAPR_HOME=1
 RETURN_ERR_ARGS=2
 RETURN_ERR_MAPRCLUSTER=3
-RETURN_ERR_OTHER=4
 
 
 # Initialize API and globals
 
 MAPR_HOME=${MAPR_HOME:-/opt/mapr}
 
-. ${MAPR_HOME}/server/common-ecosystem.sh  2> /dev/null
+. ${MAPR_HOME}/server/common-ecosystem.sh 2>/dev/null
 { set +x; } 2>/dev/null
 
 initCfgEnv
@@ -33,91 +32,151 @@ if [ $? -ne 0 ] ; then
   exit $RETURN_ERR_MAPR_HOME
 fi
 
+MAPR_CONF_DIR=${MAPR_CONF_DIR:-"${MAPR_HOME}/conf"}
+
 LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
 LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
 
-WARDEN_LIVY_DEST_CONF="$MAPR_HOME/conf/conf.d/warden.livy.conf"
-WARDEN_LIVY_FILE="$LIVY_HOME/conf/warden.livy.conf"
+WARDEN_LIVY_SRC="${LIVY_HOME}/conf/warden.livy.conf"
+WARDEN_LIVY_CONF="${MAPR_HOME}/conf/conf.d/warden.livy.conf"
 
-DAEMON_CONF=${MAPR_HOME}/conf/daemon.conf
+LIVY_CONF_TUPLES="${LIVY_HOME}/conf/livy-client.conf ${LIVY_HOME}/conf/livy-client.conf.template
+${LIVY_HOME}/conf/livy.conf ${LIVY_HOME}/conf/livy.conf.template
+${LIVY_HOME}/conf/livy-env.sh ${LIVY_HOME}/conf/livy-env.sh.template
+${LIVY_HOME}/conf/log4j.properties ${LIVY_HOME}/conf/log4j.properties.template
+${LIVY_HOME}/conf/spark-blacklist.conf ${LIVY_HOME}/conf/spark-blacklist.conf.template"
 
-MAPR_CONF_DIR=${MAPR_CONF_DIR:-"$MAPR_HOME/conf"}
+LIVY_FILE_SECURE="${LIVY_HOME}/conf/.isSecure"
+LIVY_FILE_NOT_CONFIGURED="${LIVY_HOME}/conf/.not_configured_yet"
 
-LIVY_CONF_FILES=(
-  "${LIVY_HOME}/conf/livy-client.conf"
-  "${LIVY_HOME}/conf/livy.conf"
-  "${LIVY_HOME}/conf/livy-env.sh"
-  "${LIVY_HOME}/conf/log4j.properties"
-  "${LIVY_HOME}/conf/spark-blacklist.conf"
-)
-LIVY_CONF_TEMPLATES=(
-  "${LIVY_HOME}/conf/livy-client.conf.template"
-  "${LIVY_HOME}/conf/livy.conf.template"
-  "${LIVY_HOME}/conf/livy-env.sh.template"
-  "${LIVY_HOME}/conf/log4j.properties.template"
-  "${LIVY_HOME}/conf/spark-blacklist.conf.template"
-)
+
+# Set MAPR_USER and MAPR_GROUP
+DAEMON_CONF="${MAPR_HOME}/conf/daemon.conf"
+
+MAPR_USER=${MAPR_USER:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.user" "$DAEMON_CONF" | cut -d '=' -f 2)}
+MAPR_USER=${MAPR_USER:-$(logname)} # Edge node
+MAPR_USER=${MAPR_USER:-"mapr"}
+
+MAPR_GROUP=${MAPR_GROUP:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.group" "$DAEMON_CONF" | cut -d '=' -f 2)}
+MAPR_GROUP=${MAPR_GROUP:-$MAPR_USER}
+
+MAPR_KEYSTORE_PASSWORD="mapr123"
+
+read_secure() {
+  [ -e "$LIVY_FILE_SECURE" ] && cat "$LIVY_FILE_SECURE"
+}
+
+write_secure() {
+  echo "$1" > "$LIVY_FILE_SECURE"
+}
+
+chown_component() {
+  chown -R $MAPR_USER:$MAPR_GROUP "$LIVY_HOME"
+}
+
+setup_warden_conf() {
+  cp "$WARDEN_LIVY_SRC" "$WARDEN_LIVY_CONF"
+  chown $MAPR_USER:$MAPR_GROUP "$WARDEN_LIVY_CONF"
+}
+
+create_restart_file() {
+  mkdir -p "${MAPR_CONF_DIR}/restart"
+  cat > "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart" <<'EOF'
+#!/bin/bash
+MAPR_HOME=${MAPR_HOME:-/opt/mapr}
+MAPR_USER=${MAPR_USER:-mapr}
+if [ -z "$MAPR_TICKETFILE_LOCATION" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
+    export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
+fi
+sudo -u $MAPR_USER -E maprcli node services -action restart -name livy -nodes $(hostname)
+EOF
+  chmod +x "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
+  chown $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
+}
+
+init_livy_confs() {
+  echo "$LIVY_CONF_TUPLES" | while read livy_conf_file livy_conf_template; do
+    if [ ! -e "$livy_conf_file" ]; then
+      cp "$livy_conf_template" "$livy_conf_file"
+    fi
+  done
+}
+
+conf_uncomment() {
+  local conf_file="$1"
+  local property_name="$2"
+  local delim="="
+  sed -i "s|#*\s*${property_name}\s*${delim}|${property_name} ${delim}|" "${conf_file}"
+}
+
+conf_comment() {
+  local conf_file="$1"
+  local property_name="$2"
+  local delim="="
+  sed -i "s|#*\s*${property_name}\s*${delim}|# ${property_name} ${delim}|" "${conf_file}"
+}
+
+conf_get_property() {
+    local conf_file="$1"
+    local property_name="$2"
+    local delim="="
+    grep "^\s*${property_name}" "${conf_file}" | sed "s|^\s*${property_name}\s*${delim}\s*||"
+}
+
+conf_set_property() {
+    local conf_file="$1"
+    local property_name="$2"
+    local property_value="$3"
+    local delim="="
+    if grep -q "^\s*${property_name}\s*${delim}" "${conf_file}"; then
+        # modify property
+        sed -i -r "s|^\s*${property_name}\s*${delim}.*$|${property_name} ${delim} ${property_value}|" "${conf_file}"
+    else
+        echo "${property_name} ${delim} ${property_value}" >> "${conf_file}"
+    fi
+}
+
+perm_scripts() {
+  chmod 0700 "${LIVY_HOME}/bin/configure.sh"
+}
+
+perm_confs() {
+  chmod 0600 "${LIVY_HOME}/conf/livy.conf"
+}
+
+configure_superusers() {
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.superusers"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.superusers" "$MAPR_USER"
+}
+
+configure_secure() {
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" "$(getCLDBSSLKeystorePath)"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password" "$MAPR_KEYSTORE_PASSWORD"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
+}
+
+configure_unsecure() {
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" ""
+  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password" ""
+  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" ""
+  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
+}
 
 
 # Initialize arguments
 isOnlyRoles=${isOnlyRoles:-0}
-isSecure=0
-customSecure=0
-
-
-change_permissions() {
-  if [ -f $DAEMON_CONF ]; then
-    MAPR_USER=$( awk -F = '$1 == "mapr.daemon.user" { print $2 }' $DAEMON_CONF)
-    MAPR_GROUP=$( awk -F = '$1 == "mapr.daemon.group" { print $2 }' $DAEMON_CONF)
-
-    if [ ! -z "$MAPR_USER" ]; then
-      chown -R ${MAPR_USER} ${LIVY_HOME}
-      chown ${MAPR_USER} ${MAPR_CONF_DIR}
-    fi
-
-    if [ ! -z "$MAPR_GROUP" ]; then
-      chgrp -R ${MAPR_GROUP} ${LIVY_HOME}
-      chgrp ${MAPR_GROUP} ${MAPR_CONF_DIR}
-    fi
-    chmod -f u+x ${LIVY_HOME}/bin/*
-  fi
-}
-
-setup_warden_conf() {
-  if [ -f $WARDEN_LIVY_DEST_CONF ]; then
-    rm -f $WARDEN_LIVY_DEST_CONF
-  fi
-  cp $WARDEN_LIVY_FILE $WARDEN_LIVY_DEST_CONF
-  chown ${MAPR_USER} ${WARDEN_LIVY_DEST_CONF}
-  chgrp ${MAPR_GROUP} ${WARDEN_LIVY_DEST_CONF}
-}
-
-create_restart_livy(){
-  mkdir -p ${MAPR_CONF_DIR}/restart
-  cat > "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart" <<'EOF'
-#!/bin/bash
-MAPR_HOME="${MAPR_HOME:-/opt/mapr}"
-if [ -z "${MAPR_TICKETFILE_LOCATION}" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
-    export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
-fi
-maprcli node services -action restart -name livy -nodes $(hostname)
-EOF
-  chmod +x "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
-  chown -R $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
-}
-
-livy_init_confs() {
-  local i=0
-  while [ "$i" -lt "${#LIVY_CONF_FILES[@]}" ]; do
-    local livy_conf_file="${LIVY_CONF_FILES[$i]}"
-    local livy_conf_template="${LIVY_CONF_TEMPLATES[$i]}"
-    if [ ! -e "${livy_conf_file}" ]; then
-      cp "${livy_conf_template}" "${livy_conf_file}"
-    fi
-    i=$(expr "$i" + 1)
-  done
-}
-
 
 # Parse options
 USAGE="usage: $0 [-h] [-R] [--secure|--unsecure|--customSecure] [-EC <options>]"
@@ -125,15 +184,13 @@ USAGE="usage: $0 [-h] [-R] [--secure|--unsecure|--customSecure] [-EC <options>]"
 while [ ${#} -gt 0 ]; do
   case "$1" in
     --secure)
-      isSecure=1;
-      logWarn -both "Livy does not support security!"
+      isSecure="true";
       shift 1;;
     --unsecure)
-      isSecure=0;
+      isSecure="false";
       shift 1;;
     --customSecure)
-      isSecure=0;
-      customSecure=1;
+      isSecure="custom";
       shift 1;;
     -R)
       isOnlyRoles=1;
@@ -158,9 +215,37 @@ while [ ${#} -gt 0 ]; do
 done
 
 
-livy_init_confs
-change_permissions
-setup_warden_conf
-create_restart_livy
+if [ "$isOnlyRoles" = "1" ]; then
+  oldSecure=$(read_secure)
+  updSecure="false"
+  if [ -n "$isSecure" ] && [ "$isSecure" != "$oldSecure" ]; then
+    updSecure="true"
+  fi
 
-exit $RETURN_SUCCESS
+  init_livy_confs
+
+  configure_superusers
+
+  if [ "$updSecure" = "true" ]; then
+    write_secure "$isSecure"
+
+    if [ "$isSecure" = "true" ]; then
+      configure_secure
+    elif [ "$isSecure" = "false" ]; then
+      configure_unsecure
+    fi
+  fi
+
+  perm_scripts
+  perm_confs
+
+  chown_component
+
+  setup_warden_conf
+
+  if [ -f "$LIVY_FILE_NOT_CONFIGURED" ]; then
+    rm -f "$LIVY_FILE_NOT_CONFIGURED"
+  elif [ "$updSecure" = "true" ]; then
+    create_restart_file
+  fi
+fi

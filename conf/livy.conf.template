@@ -49,7 +49,10 @@ livy.spark.deploy-mode = cluster
 # livy.server.session.state-retain.sec = 600s
 
 # If livy should impersonate the requesting users when creating a new session.
-# livy.impersonation.enabled = true
+livy.impersonation.enabled = true
+
+# List of Livy superusers.
+# livy.superusers =
 
 # Logs size livy can cache for each session/batch. 0 means don't cache the logs.
 # livy.cache-log.size = 200
