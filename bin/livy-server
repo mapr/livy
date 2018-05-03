@@ -23,6 +23,8 @@ usage="Usage: livy-server (start|stop|status)"
 export LIVY_HOME=$(cd $(dirname $0)/.. && pwd)
 LIVY_CONF_DIR=${LIVY_CONF_DIR:-"$LIVY_HOME/conf"}
 
+MAPR_HOME=${MAPR_HOME:-"/opt/mapr"}
+
 if [ -f "${LIVY_CONF_DIR}/livy-env.sh" ]; then
   # Promote all variable declarations to environment (exported) variables
   set -a
@@ -41,7 +43,7 @@ else
 fi
 
 LIVY_IDENT_STRING=${LIVY_IDENT_STRING:-"$USER"}
-LIVY_PID_DIR=${LIVY_PID_DIR:-"/tmp"}
+LIVY_PID_DIR=${LIVY_PID_DIR:-"${MAPR_HOME}/pid"}
 LIVY_MAX_LOG_FILES=${LIVY_MAX_LOG_FILES:-5}
 pid="$LIVY_PID_DIR/livy-$LIVY_IDENT_STRING-server.pid"
 
@@ -171,11 +173,14 @@ case $option in
       TARGET_ID="$(cat "$pid")"
       if [[ $(ps -p "$TARGET_ID" -o comm=) =~ "java" ]]; then
         echo "livy-server is running (pid: $TARGET_ID)"
+        exit 0
       else
         echo "livy-server is not running"
+        exit 1
       fi
     else
       echo "livy-server is not running"
+      exit 1
     fi
     ;;
 
