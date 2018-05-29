@@ -92,9 +92,9 @@
 
 # SASL configurations for authentication
 # SASL mechanism used for authentication
-# livy.rsc.rpc.sasl.mechanisms = DIGEST-MD5
+livy.rsc.rpc.sasl.mechanisms = DIGEST-MD5
 # SASL qop used for authentication
-# livy.rsc.rpc.sasl.qop =
+livy.rsc.rpc.sasl.qop = auth-conf
 
 # Time between status checks for cancelled a Job
 # livy.rsc.job-cancel.trigger-interval = 100ms
