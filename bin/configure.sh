@@ -61,6 +61,8 @@ MAPR_GROUP=${MAPR_GROUP:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.group" "$D
 MAPR_GROUP=${MAPR_GROUP:-$MAPR_USER}
 
 MAPR_KEYSTORE_PASSWORD="mapr123"
+LIVY_CREDENTIALS_FILE="/user/${MAPR_USER}/livy.jceks"
+LIVY_CREDENTIALS_PROP="jceks://maprfs/user/${MAPR_USER}/livy.jceks"
 
 read_secure() {
   [ -e "$LIVY_FILE_SECURE" ] && cat "$LIVY_FILE_SECURE"
@@ -140,10 +142,6 @@ perm_scripts() {
   chmod 0700 "${LIVY_HOME}/bin/configure.sh"
 }
 
-perm_confs() {
-  chmod 0600 "${LIVY_HOME}/conf/livy.conf"
-}
-
 configure_superusers() {
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.superusers"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.superusers" "$MAPR_USER"
@@ -153,8 +151,12 @@ configure_secure() {
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" "$(getCLDBSSLKeystorePath)"
 
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password" "$MAPR_KEYSTORE_PASSWORD"
+  if ! hadoop fs -test -f "$LIVY_CREDENTIALS_FILE"; then
+    hadoop credential create "livy.keystore.password" -value "$MAPR_KEYSTORE_PASSWORD" -provider "$LIVY_CREDENTIALS_PROP"
+  fi
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path" "$LIVY_CREDENTIALS_PROP"
 
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
@@ -165,9 +167,9 @@ configure_unsecure() {
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" ""
   conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
 
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password" ""
-  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.keystore.password"
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path" ""
+  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
 
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" ""
@@ -237,7 +239,6 @@ if [ "$isOnlyRoles" = "1" ]; then
   fi
 
   perm_scripts
-  perm_confs
 
   chown_component
 
