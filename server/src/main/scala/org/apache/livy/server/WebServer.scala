@@ -27,6 +27,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 
 import org.apache.livy.{LivyConf, Logging}
 
+import org.apache.hadoop.conf.Configuration
+
 class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Logging {
   val server = new Server()
 
@@ -48,9 +50,40 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
 
       val sslContextFactory = new SslContextFactory()
       sslContextFactory.setKeyStorePath(keystore)
-      Option(livyConf.get(LivyConf.SSL_KEYSTORE_PASSWORD))
+
+      val credentialsProviderPath = livyConf.get(LivyConf.HADOOP_CREDENTIALS_PROVIDER_PATH)
+      val credentialsProviderSupported = {
+        // Only supported in Hadoop 2.6.0+
+        try {
+          classOf[Configuration].getMethod("getPassword", classOf[String])
+          true
+        } catch {
+          case e: NoSuchMethodException => false
+        }
+      }
+
+      var keyStorePassword = livyConf.get(LivyConf.SSL_KEYSTORE_PASSWORD)
+      var keyPassword = livyConf.get(LivyConf.SSL_KEY_PASSWORD)
+
+      if (credentialsProviderPath != null && credentialsProviderSupported) {
+        val hadoopConf = new Configuration()
+        hadoopConf.set("hadoop.security.credential.provider.path", credentialsProviderPath)
+
+        val tmpKeyStorePassword = hadoopConf.getPassword(LivyConf.SSL_KEYSTORE_PASSWORD.key)
+        val tmpKeyPassword = hadoopConf.getPassword(LivyConf.SSL_KEY_PASSWORD.key)
+
+        if (tmpKeyStorePassword != null) {
+          keyStorePassword = tmpKeyStorePassword.mkString
+        }
+
+        if (tmpKeyPassword != null) {
+          keyPassword = tmpKeyPassword.mkString
+        }
+      }
+
+      Option(keyStorePassword)
         .foreach(sslContextFactory.setKeyStorePassword)
-      Option(livyConf.get(LivyConf.SSL_KEY_PASSWORD))
+      Option(keyPassword)
         .foreach(sslContextFactory.setKeyManagerPassword)
 
       (new ServerConnector(server,
