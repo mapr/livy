@@ -151,8 +151,12 @@ configure_secure() {
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" "$(getCLDBSSLKeystorePath)"
 
-  if ! hadoop fs -test -f "$LIVY_CREDENTIALS_FILE"; then
-    hadoop credential create "livy.keystore.password" -value "$MAPR_KEYSTORE_PASSWORD" -provider "$LIVY_CREDENTIALS_PROP"
+  if [ -z "$MAPR_TICKETFILE_LOCATION" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
+    export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
+  fi
+
+  if ! sudo -u $MAPR_USER -E hadoop fs -test -f "$LIVY_CREDENTIALS_FILE"; then
+    sudo -u $MAPR_USER -E hadoop credential create "livy.keystore.password" -value "$MAPR_KEYSTORE_PASSWORD" -provider "$LIVY_CREDENTIALS_PROP"
   fi
 
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
