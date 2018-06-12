@@ -53,4 +53,4 @@ component_get_home() {
 export CLASSPATH=$(mapr classpath)
 export HADOOP_CONF_DIR="$(component_get_home 'hadoop')/etc/hadoop"
 export SPARK_HOME="$(component_get_home 'spark')"
-export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$SPARK_HOME/python/:$PYTHONPATH
+export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.10.7-src.zip:$SPARK_HOME/python/:$PYTHONPATH

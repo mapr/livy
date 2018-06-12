@@ -556,9 +556,19 @@ def main():
             from py4j.java_gateway import JavaGateway, GatewayClient, CallbackServerParameters
 
             gateway_client_port = int(os.environ.get("PYSPARK_GATEWAY_PORT"))
-            gateway = JavaGateway(GatewayClient(port=gateway_client_port))
-            gateway.start_callback_server(
-                callback_server_parameters=CallbackServerParameters(port=0))
+            try:
+                from py4j.java_gateway import GatewayParameters
+                gateway_secret = os.environ["PYSPARK_GATEWAY_SECRET"]
+                gateway = JavaGateway(gateway_parameters=GatewayParameters(
+                    port=gateway_client_port, auth_token=gateway_secret, auto_convert=True))
+                gateway.start_callback_server(
+                    callback_server_parameters=CallbackServerParameters(
+                        port=0, auth_token=gateway_secret))
+            except:
+                gateway = JavaGateway(GatewayClient(port=gateway_client_port), auto_convert=True)
+                gateway.start_callback_server(
+                    callback_server_parameters=CallbackServerParameters(port=0))
+
             socket_info = gateway._callback_server.server_socket.getsockname()
             listening_port = socket_info[1]
             pyspark_job_processor = PySparkJobProcessorImpl()
