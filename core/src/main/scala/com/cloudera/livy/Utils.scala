@@ -18,10 +18,11 @@
 
 package com.cloudera.livy
 
-import java.io.{Closeable, File, FileInputStream, InputStreamReader}
+import java.io.{Closeable, File, InputStreamReader}
 import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.Properties
+import java.security.SecureRandom
+import java.util.{Base64, Properties}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -107,4 +108,10 @@ object Utils {
     }
   }
 
+  def createSecret(secretBitLength: Int): String = {
+    val rnd = new SecureRandom()
+    val secretBytes = new Array[Byte](secretBitLength / java.lang.Byte.SIZE)
+    rnd.nextBytes(secretBytes)
+    Base64.getEncoder.encodeToString(secretBytes)
+  }
 }
