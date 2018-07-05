@@ -1218,9 +1218,25 @@
     <profile>
       <id>vendor-repo-mapr</id>
       <repositories>
+         <repository>
+          <id>MAPR_MAVEN_REPO</id>
+          <url>${env.MAPR_MAVEN_REPO}</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+        </repository>
         <repository>
-          <id>mapr-releases</id>
+          <id>repository.mapr.com</id>
           <url>http://repository.mapr.com/maven/</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
         </repository>
       </repositories>
     </profile>
@@ -1228,8 +1244,8 @@
     <profile>
       <id>mapr-mep-600</id>
       <properties>
-        <spark.version>2.2.1-mapr-1803</spark.version>
-        <hadoop.version>2.7.0-mapr-1803</hadoop.version>
+        <spark.version>2.3.1-mapr-SNAPSHOT</spark.version>
+        <hadoop.version>2.7.0-mapr-1710-SNAPSHOT</hadoop.version>
 
         <scala-2.11.version>2.11.8</scala-2.11.version>
         <scala.binary.version>2.11</scala.binary.version>
