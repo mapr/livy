@@ -180,6 +180,17 @@ configure_unsecure() {
   conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
 }
 
+configure_hive() {
+  if [ -e "${MAPR_HOME}/hive/hiveversion" ]; then
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context" "true"
+  else
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context" ""
+    conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context"
+  fi
+}
+
 
 # Initialize arguments
 isOnlyRoles=${isOnlyRoles:-0}
@@ -231,6 +242,8 @@ if [ "$isOnlyRoles" = "1" ]; then
   init_livy_confs
 
   configure_superusers
+
+  configure_hive
 
   if [ "$updSecure" = "true" ]; then
     write_secure "$isSecure"
