@@ -1315,21 +1315,81 @@
       </properties>
       <dependencyManagement>
         <dependencies>
+
+          <!-- MEP-28 Adapt all ecosystems to use the runtime library from /opt/mapr/lib -->
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-auth</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
           <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
+            <scope>provided</scope>
             <exclusions>
               <exclusion>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
               </exclusion>
-              <exclusion>
-                <groupId>com.mapr.hadoop</groupId>
-                <artifactId>maprfs</artifactId>
-              </exclusion>
             </exclusions>
           </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <classifier>tests</classifier>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <classifier>tests</classifier>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-api</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-client</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-common</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-server-tests</artifactId>
+            <classifier>tests</classifier>
+            <version>${hadoop.version}</version>
+            <scope>provided</scope>
+          </dependency>
+          <!-- / MEP-28 Adapt all ecosystems to use the runtime library from /opt/mapr/lib -->
+
         </dependencies>
       </dependencyManagement>
     </profile>
