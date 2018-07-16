@@ -1312,6 +1312,8 @@
         <scala-2.11.version>2.11.8</scala-2.11.version>
         <scala.binary.version>2.11</scala.binary.version>
         <scala.version>${scala-2.11.version}</scala.version>
+
+        <mapr.version>6.1.0-mapr-SNAPSHOT</mapr.version>
       </properties>
       <dependencyManagement>
         <dependencies>
@@ -1390,6 +1392,17 @@
           </dependency>
           <!-- / MEP-28 Adapt all ecosystems to use the runtime library from /opt/mapr/lib -->
 
+          <dependency>
+            <groupId>com.mapr.security</groupId>
+            <artifactId>mapr-security-web</artifactId>
+            <version>${mapr.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>*</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
         </dependencies>
       </dependencyManagement>
     </profile>

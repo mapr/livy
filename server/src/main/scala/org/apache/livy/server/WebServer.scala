@@ -20,6 +20,9 @@ package org.apache.livy.server
 import java.net.InetAddress
 import javax.servlet.ServletContextListener
 
+import com.mapr.web.security.SslConfig
+import com.mapr.web.security.SslConfig.SslConfigScope
+import com.mapr.web.security.WebSecurityManager
 import org.apache.hadoop.conf.Configuration
 import org.eclipse.jetty.server._
 import org.eclipse.jetty.server.handler.{HandlerCollection, RequestLogHandler}
@@ -35,11 +38,32 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
   server.setStopAtShutdown(true)
 
   val (connector, protocol) = Option(livyConf.get(LivyConf.SSL_KEYSTORE)) match {
-    case None =>
+    case None if !livyConf.isMaprSecured =>
       val http = new HttpConfiguration()
       http.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
       http.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
       (new ServerConnector(server, new HttpConnectionFactory(http)), "http")
+
+    case None if livyConf.isMaprSecured =>
+      val https = new HttpConfiguration()
+      https.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
+      https.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
+      https.addCustomizer(new SecureRequestCustomizer())
+
+      val sslContextFactory = new SslContextFactory()
+      val sslConfig = WebSecurityManager.getSslConfig(SslConfigScope.SCOPE_ALL)
+      Option(sslConfig.getServerKeystoreLocation)
+        .foreach(sslContextFactory.setKeyStorePath)
+      Option(sslConfig.getServerKeystorePassword).map(_.mkString)
+        .foreach(sslContextFactory.setKeyStorePassword)
+      Option(sslConfig.getServerKeyPassword).map(_.mkString)
+        .foreach(sslContextFactory.setKeyManagerPassword)
+      Option(sslConfig.getServerKeystoreType)
+        .foreach(sslContextFactory.setKeyStoreType)
+
+      (new ServerConnector(server,
+        new SslConnectionFactory(sslContextFactory, "http/1.1"),
+        new HttpConnectionFactory(https)), "https")
 
     case Some(keystore) =>
       val https = new HttpConfiguration()

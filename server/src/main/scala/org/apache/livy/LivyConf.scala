@@ -22,6 +22,7 @@ import java.lang.{Boolean => JBoolean, Long => JLong}
 import java.util.{Map => JMap}
 
 import scala.collection.JavaConverters._
+import scala.io.Source
 
 import org.apache.hadoop.conf.Configuration
 
@@ -294,6 +295,15 @@ class LivyConf(loadDefaults: Boolean) extends ClientConf[LivyConf](null) {
 
   override def getDeprecatedConfigs: JMap[String, DeprecatedConf] = {
     deprecatedConfigs.asJava
+  }
+
+  val isMaprSecured: Boolean = {
+    val source = getConfigFile(".isSecure").map(Source.fromFile)
+    try {
+      source.map(_.mkString.trim.toLowerCase).contains("true")
+    } finally {
+      source.foreach(_.close)
+    }
   }
 
 }
