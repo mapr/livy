@@ -54,15 +54,11 @@ LIVY_FILE_NOT_CONFIGURED="${LIVY_HOME}/conf/.not_configured_yet"
 DAEMON_CONF="${MAPR_HOME}/conf/daemon.conf"
 
 MAPR_USER=${MAPR_USER:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.user" "$DAEMON_CONF" | cut -d '=' -f 2)}
-MAPR_USER=${MAPR_USER:-$(logname)} # Edge node
 MAPR_USER=${MAPR_USER:-"mapr"}
 
 MAPR_GROUP=${MAPR_GROUP:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.group" "$DAEMON_CONF" | cut -d '=' -f 2)}
 MAPR_GROUP=${MAPR_GROUP:-$MAPR_USER}
 
-MAPR_KEYSTORE_PASSWORD="mapr123"
-LIVY_CREDENTIALS_FILE="/user/${MAPR_USER}/livy.jceks"
-LIVY_CREDENTIALS_PROP="jceks://maprfs/user/${MAPR_USER}/livy.jceks"
 
 read_secure() {
   [ -e "$LIVY_FILE_SECURE" ] && cat "$LIVY_FILE_SECURE"
@@ -148,33 +144,11 @@ configure_superusers() {
 }
 
 configure_secure() {
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" "$(getCLDBSSLKeystorePath)"
-
-  if [ -z "$MAPR_TICKETFILE_LOCATION" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
-    export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
-  fi
-
-  if ! sudo -u $MAPR_USER -E hadoop fs -test -f "$LIVY_CREDENTIALS_FILE"; then
-    sudo -u $MAPR_USER -E hadoop credential create "livy.keystore.password" -value "$MAPR_KEYSTORE_PASSWORD" -provider "$LIVY_CREDENTIALS_PROP"
-  fi
-
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path" "$LIVY_CREDENTIALS_PROP"
-
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
 }
 
 configure_unsecure() {
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.keystore" ""
-  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.keystore"
-
-  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
-  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path" ""
-  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.hadoop.security.credential.provider.path"
-
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" ""
   conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
