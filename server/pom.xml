@@ -309,6 +309,10 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.mapr.security</groupId>
+      <artifactId>mapr-security-web</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
