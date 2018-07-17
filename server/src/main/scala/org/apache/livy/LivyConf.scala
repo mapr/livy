@@ -22,6 +22,7 @@ import java.lang.{Boolean => JBoolean, Long => JLong}
 import java.util.{Map => JMap}
 
 import scala.collection.JavaConverters._
+import scala.io.Source
 
 import org.apache.hadoop.conf.Configuration
 
@@ -88,6 +89,7 @@ object LivyConf {
   val ACCESS_CONTROL_MODIFY_USERS = Entry("livy.server.access-control.modify-users", null)
   val ACCESS_CONTROL_VIEW_USERS = Entry("livy.server.access-control.view-users", null)
 
+  val SSL_ENABLE = Entry("livy.ssl.enable", "auto")
   val SSL_KEYSTORE = Entry("livy.keystore", null)
   val SSL_KEYSTORE_PASSWORD = Entry("livy.keystore.password", null)
   val SSL_KEY_PASSWORD = Entry("livy.key-password", null)
@@ -451,6 +453,15 @@ class LivyConf(loadDefaults: Boolean) extends ClientConf[LivyConf](null) {
 
   override def getDeprecatedConfigs: JMap[String, DeprecatedConf] = {
     deprecatedConfigs.asJava
+  }
+
+  val isMaprSecured: Boolean = {
+    val source = getConfigFile(".isSecure").map(Source.fromFile)
+    try {
+      source.map(_.mkString.trim.toLowerCase).contains("true")
+    } finally {
+      source.foreach(_.close)
+    }
   }
 
 }
