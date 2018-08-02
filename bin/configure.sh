@@ -38,7 +38,13 @@ LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
 LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
 
 WARDEN_LIVY_SRC="${LIVY_HOME}/conf/warden.livy.conf"
-WARDEN_LIVY_CONF="${MAPR_HOME}/conf/conf.d/warden.livy.conf"
+WARDEN_LIVY_CONF="${MAPR_CONF_DIR}/conf.d/warden.livy.conf"
+
+WARDEN_HEAPSIZE_MIN_KEY="service.heapsize.min"
+WARDEN_HEAPSIZE_MAX_KEY="service.heapsize.max"
+WARDEN_HEAPSIZE_PERCENT_KEY="service.heapsize.percent"
+WARDEN_RUNSTATE_KEY="service.runstate"
+
 
 LIVY_CONF_TUPLES="${LIVY_HOME}/conf/livy-client.conf ${LIVY_HOME}/conf/livy-client.conf.template
 ${LIVY_HOME}/conf/livy.conf ${LIVY_HOME}/conf/livy.conf.template
@@ -70,11 +76,6 @@ write_secure() {
 
 chown_component() {
   chown -R $MAPR_USER:$MAPR_GROUP "$LIVY_HOME"
-}
-
-setup_warden_conf() {
-  cp "$WARDEN_LIVY_SRC" "$WARDEN_LIVY_CONF"
-  chown $MAPR_USER:$MAPR_GROUP "$WARDEN_LIVY_CONF"
 }
 
 create_restart_file() {
@@ -115,23 +116,25 @@ conf_comment() {
 }
 
 conf_get_property() {
-    local conf_file="$1"
-    local property_name="$2"
-    local delim="="
-    grep "^\s*${property_name}" "${conf_file}" | sed "s|^\s*${property_name}\s*${delim}\s*||"
+  local conf_file="$1"
+  local property_name="$2"
+  local delim="$3"
+  delim=${delim:-"="}
+  grep "^\s*${property_name}" "${conf_file}" | sed "s|^\s*${property_name}\s*${delim}\s*||"
 }
 
 conf_set_property() {
-    local conf_file="$1"
-    local property_name="$2"
-    local property_value="$3"
-    local delim="="
-    if grep -q "^\s*${property_name}\s*${delim}" "${conf_file}"; then
-        # modify property
-        sed -i -r "s|^\s*${property_name}\s*${delim}.*$|${property_name} ${delim} ${property_value}|" "${conf_file}"
-    else
-        echo "${property_name} ${delim} ${property_value}" >> "${conf_file}"
-    fi
+  local conf_file="$1"
+  local property_name="$2"
+  local property_value="$3"
+  local delim="$4"
+  delim=${delim:-" = "}
+  if grep -q "^\s*${property_name}\s*${delim}" "${conf_file}"; then
+    # modify property
+    sed -i -r "s|^\s*${property_name}\s*${delim}.*$|${property_name}${delim}${property_value}|" "${conf_file}"
+  else
+    echo "${property_name}${delim}${property_value}" >> "${conf_file}"
+  fi
 }
 
 perm_scripts() {
@@ -163,6 +166,29 @@ configure_hive() {
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context" ""
     conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.repl.enable-hive-context"
   fi
+}
+
+setup_warden_conf() {
+  local curr_heapsize_min
+  local curr_heapsize_max
+  local curr_heapsize_percent
+  local curr_runstate
+
+  if [ -f "$WARDEN_LIVY_CONF" ]; then
+    curr_heapsize_min=$(conf_get_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_MIN_KEY")
+    curr_heapsize_max=$(conf_get_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_MAX_KEY")
+    curr_heapsize_percent=$(conf_get_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_PERCENT_KEY")
+    curr_runstate=$(conf_get_property "$WARDEN_LIVY_CONF" "$WARDEN_RUNSTATE_KEY")
+  fi
+
+  cp "$WARDEN_LIVY_SRC" "$WARDEN_LIVY_CONF"
+
+  [ -n "$curr_heapsize_min" ] && conf_set_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_MIN_KEY" "$curr_heapsize_min" "="
+  [ -n "$curr_heapsize_max" ] && conf_set_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_MAX_KEY" "$curr_heapsize_max" "="
+  [ -n "$curr_heapsize_percent" ] && conf_set_property "$WARDEN_LIVY_CONF" "$WARDEN_HEAPSIZE_PERCENT_KEY" "$curr_heapsize_percent" "="
+  [ -n "$curr_runstate" ] && conf_set_property "$WARDEN_LIVY_CONF" "$WARDEN_RUNSTATE_KEY" "$curr_runstate" "="
+
+  chown $MAPR_USER:$MAPR_GROUP "$WARDEN_LIVY_CONF"
 }
 
 
