@@ -22,7 +22,7 @@
 
   <groupId>org.apache.livy</groupId>
   <artifactId>livy-main</artifactId>
-  <version>0.5.0-incubating</version>
+  <version>0.5.0-mapr-1808</version>
   <packaging>pom</packaging>
   <name>Livy Project Parent POM</name>
   <description>Livy Project</description>
@@ -1306,14 +1306,14 @@
     <profile>
       <id>mapr-mep-600</id>
       <properties>
-        <spark.version>2.3.1-mapr-SNAPSHOT</spark.version>
-        <hadoop.version>2.7.0-mapr-1710-SNAPSHOT</hadoop.version>
+        <spark.version>2.3.1-mapr-1808</spark.version>
+        <hadoop.version>2.7.0-mapr-1808</hadoop.version>
 
         <scala-2.11.version>2.11.8</scala-2.11.version>
         <scala.binary.version>2.11</scala.binary.version>
         <scala.version>${scala-2.11.version}</scala.version>
 
-        <mapr.version>6.1.0-mapr-SNAPSHOT</mapr.version>
+        <mapr.version>6.1.0-mapr</mapr.version>
 
         <!-- MEP-28 Adapt all ecosystems to use the runtime library from /opt/mapr/lib -->
         <hadoop.scope>provided</hadoop.scope>

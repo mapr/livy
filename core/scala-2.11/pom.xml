@@ -19,13 +19,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.livy</groupId>
   <artifactId>livy-core_2.11</artifactId>
-  <version>0.5.0-incubating</version>
+  <version>0.5.0-mapr-1808</version>
   <packaging>jar</packaging>
 
   <parent>
     <groupId>org.apache.livy</groupId>
     <artifactId>livy-core-parent</artifactId>
-    <version>0.5.0-incubating</version>
+    <version>0.5.0-mapr-1808</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
