@@ -54,6 +54,5 @@ setup(
     keywords='livy pyspark development',
     classifiers=CLASSIFIERS,
     install_requires=requirements,
-    setup_requires=['pytest-runner', 'flake8<3.4.0'],
-    tests_require=['pytest']
+    tests_require=['pytest', 'pytest-runner', 'flake8<3.4.0']
 )
