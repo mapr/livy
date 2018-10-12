@@ -42,11 +42,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>livy-repl_2.10</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
