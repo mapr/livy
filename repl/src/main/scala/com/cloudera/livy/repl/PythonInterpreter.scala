@@ -89,13 +89,17 @@ object PythonInterpreter extends Logging {
           require(pyArchivesFile.exists(),
             "pyspark.zip not found; cannot run pyspark application in YARN mode.")
 
-          val py4jFile = Files.newDirectoryStream(Paths.get(pyLibPath), "py4j-*-src.zip")
+          val py4jFiles = Files.newDirectoryStream(Paths.get(pyLibPath), "py4j-*-src.zip")
             .iterator()
-            .next()
-            .toFile
+            .asScala
+            .toList
+            .sorted
 
-          require(py4jFile.exists(),
+          require(py4jFiles.nonEmpty,
             "py4j-*-src.zip not found; cannot run pyspark application in YARN mode.")
+
+          val py4jFile = py4jFiles.last.toFile
+
           Seq(pyArchivesFile.getAbsolutePath, py4jFile.getAbsolutePath)
         }.getOrElse(Seq())
       }
