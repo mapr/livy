@@ -21,12 +21,12 @@
   <parent>
     <groupId>com.cloudera.livy</groupId>
     <artifactId>livy-main</artifactId>
-    <version>0.3.0-mapr-1803-r1</version>
+    <version>0.3.0-mapr-1803-r2</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>livy-assembly</artifactId>
-  <version>0.3.0-mapr-1803-r1</version>
+  <version>0.3.0-mapr-1803-r2</version>
   <packaging>pom</packaging>
 
   <properties>
