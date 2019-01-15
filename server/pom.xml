@@ -218,6 +218,17 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>net.sf.jpam</groupId>
+      <artifactId>jpam</artifactId>
+      <version>1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.security</groupId>
+      <artifactId>mapr-security-web</artifactId>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -284,24 +295,6 @@
 
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>mapr-mep-600</id>
-      <dependencies>
-        <dependency>
-          <groupId>net.sf.jpam</groupId>
-          <artifactId>jpam</artifactId>
-          <version>1.1</version>
-        </dependency>
-
-        <dependency>
-          <groupId>com.mapr.security</groupId>
-          <artifactId>mapr-security-web</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 
 </project>
 
