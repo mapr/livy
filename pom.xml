@@ -82,7 +82,7 @@
     <hadoop.scope>provided</hadoop.scope>
     <spark.scala-2.11.version>1.6.2</spark.scala-2.11.version>
     <spark.scala-2.10.version>1.6.2</spark.scala-2.10.version>
-    <spark.version>2.3.1-mapr-SNAPSHOT</spark.version>
+    <spark.version>2.3.2.0-mapr-SNAPSHOT</spark.version>
     <commons-codec.version>1.9</commons-codec.version>
     <guava.version>15.0</guava.version>
     <httpclient.version>4.5.3</httpclient.version>
