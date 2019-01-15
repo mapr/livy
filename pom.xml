@@ -42,9 +42,9 @@
   </organization>
 
   <properties>
-    <hadoop.version>2.7.0-mapr-1607</hadoop.version>
-    <hadoop.scope>compile</hadoop.scope>
-    <spark.version>2.0.1-mapr-1611rc3</spark.version>
+    <hadoop.version>2.7.0-mapr-1803</hadoop.version>
+    <hadoop.scope>provided</hadoop.scope>
+    <spark.version>1.6.2</spark.version>
     <commons-codec.version>1.9</commons-codec.version>
     <httpclient.version>4.5.2</httpclient.version>
     <httpcore.version>4.4.4</httpcore.version>
@@ -185,21 +185,21 @@
     <module>assembly</module>
     <module>client-common</module>
     <module>client-http</module>
-    <module>core/scala-2.10</module>
+    <!-- module>core/scala-2.10</module -->
     <module>core/scala-2.11</module>
     <module>coverage</module>
     <module>examples</module>
     <module>python-api</module>
-    <module>repl/scala-2.10</module>
+    <!-- module>repl/scala-2.10</module -->
     <module>repl/scala-2.11</module>
     <module>rsc</module>
-    <module>scala-api/scala-2.10</module>
+    <!-- module>scala-api/scala-2.10</module -->
     <module>scala-api/scala-2.11</module>
     <module>server</module>
     <module>test-lib</module>
-    <module>integration-test/minicluster-dependencies/scala-2.10</module>
-    <module>integration-test/minicluster-dependencies/scala-2.11</module>
-    <module>integration-test</module>
+    <!-- module>integration-test/minicluster-dependencies/scala-2.10</module -->
+    <!-- module>integration-test/minicluster-dependencies/scala-2.11</module -->
+    <!-- module>integration-test</module -->
   </modules>
 
   <dependencies>
@@ -1012,30 +1012,37 @@
     </profile>
 
     <profile>
-      <id>mapr-mep-3</id>
+      <id>spark-2.2-mapr</id>
       <properties>
-        <spark.version>2.1.0-mapr-1707</spark.version>
-        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
+        <spark.version>2.2.1-mapr-SNAPSHOT</spark.version>
       </properties>
     </profile>
 
     <profile>
-      <id>mapr-mep-4</id>
-      <properties>
-        <spark.version>2.1.0-mapr-1707</spark.version>
-        <hadoop.version>2.7.0-mapr-1707</hadoop.version>
-      </properties>
+      <id>vendor-repo-mapr</id>
+      <repositories>
+         <repository>
+          <id>MAPR_MAVEN_REPO</id>
+          <url>${env.MAPR_MAVEN_REPO}</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>repository.mapr.com</id>
+          <url>http://repository.mapr.com/maven/</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
     </profile>
-
-    <profile>
-      <id>mapr-mep-5</id>
-      <properties>
-        <spark.version>2.2.1-mapr-1803</spark.version>
-        <hadoop.version>2.7.0-mapr-1803</hadoop.version>
-        <hadoop.scope>provided</hadoop.scope>
-      </properties>
-    </profile>
-
   </profiles>
 
 </project>
