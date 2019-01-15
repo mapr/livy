@@ -50,11 +50,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>livy-core_2.10</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -62,11 +64,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>livy-repl_2.10</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -86,11 +90,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>livy-scala-api_2.10</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -98,12 +104,14 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>livy-integration-test</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
