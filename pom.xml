@@ -22,7 +22,7 @@
 
   <groupId>org.apache.livy</groupId>
   <artifactId>livy-main</artifactId>
-  <version>0.5.0-mapr-SNAPSHOT</version>
+  <version>0.5.0-mapr-1901</version>
   <packaging>pom</packaging>
   <name>Livy Project Parent POM</name>
   <description>Livy Project</description>
@@ -1222,7 +1222,7 @@
     <profile>
       <id>spark-2.3-mapr</id>
       <properties>
-        <spark.scala-2.11.version>2.3.2.0-mapr-SNAPSHOT</spark.scala-2.11.version>
+        <spark.scala-2.11.version>2.3.2.0-mapr-1901</spark.scala-2.11.version>
         <spark.version>${spark.scala-2.11.version}</spark.version>
         <netty.spark-2.11.version>4.1.17.Final</netty.spark-2.11.version>
         <java.version>1.8</java.version>
