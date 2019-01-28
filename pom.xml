@@ -23,7 +23,7 @@
 
   <groupId>com.cloudera.livy</groupId>
   <artifactId>livy-main</artifactId>
-  <version>0.3.0-mapr-SNAPSHOT</version>
+  <version>0.3.0-mapr-mep-5.x-1901</version>
   <packaging>pom</packaging>
 
   <name>livy-main</name>
@@ -1014,7 +1014,7 @@
     <profile>
       <id>spark-2.2-mapr</id>
       <properties>
-        <spark.version>2.2.1-mapr-SNAPSHOT</spark.version>
+        <spark.version>2.2.1-mapr-1901</spark.version>
       </properties>
     </profile>
 

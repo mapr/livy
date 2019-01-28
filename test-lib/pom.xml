@@ -21,12 +21,12 @@
   <parent>
     <groupId>com.cloudera.livy</groupId>
     <artifactId>livy-main</artifactId>
-    <version>0.3.0-mapr-SNAPSHOT</version>
+    <version>0.3.0-mapr-mep-5.x-1901</version>
   </parent>
 
   <groupId>com.cloudera.livy</groupId>
   <artifactId>livy-test-lib</artifactId>
-  <version>0.3.0-mapr-SNAPSHOT</version>
+  <version>0.3.0-mapr-mep-5.x-1901</version>
   <packaging>jar</packaging>
 
   <properties>

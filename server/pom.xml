@@ -24,11 +24,11 @@
         <groupId>com.cloudera.livy</groupId>
         <artifactId>livy-main</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>0.3.0-mapr-SNAPSHOT</version>
+        <version>0.3.0-mapr-mep-5.x-1901</version>
     </parent>
 
     <artifactId>livy-server</artifactId>
-    <version>0.3.0-mapr-SNAPSHOT</version>
+    <version>0.3.0-mapr-mep-5.x-1901</version>
     <packaging>jar</packaging>
 
     <properties>
