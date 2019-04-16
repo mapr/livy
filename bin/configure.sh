@@ -147,12 +147,19 @@ configure_superusers() {
 configure_secure() {
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "true"
 }
 
 configure_unsecure() {
   conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
   conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" ""
   conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
+
+  conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
+  conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "false"
+  conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
 }
 
 configure_hive() {
