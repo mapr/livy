@@ -1229,12 +1229,12 @@
     <profile>
       <id>spark-mapr</id>
       <properties>
-        <spark.scala-2.11.version>2.4.4.0-mapr-SNAPSHOT</spark.scala-2.11.version>
+        <spark.scala-2.11.version>2.3.2.0-mapr-SNAPSHOT</spark.scala-2.11.version>
         <spark.version>${spark.scala-2.11.version}</spark.version>
         <netty.spark-2.11.version>4.1.17.Final</netty.spark-2.11.version>
         <java.version>1.8</java.version>
         <py4j.version>0.10.7</py4j.version>
-        <json4s.version>3.5.3</json4s.version>
+        <json4s.version>3.2.11</json4s.version>
       </properties>
     </profile>
 
