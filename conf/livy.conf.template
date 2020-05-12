@@ -249,3 +249,6 @@ livy.impersonation.enabled = true
 # Enable to allow custom classpath by proxy user in cluster mode
 # The below configuration parameter is disabled by default.
 # livy.server.session.allow-custom-classpath = true
+
+# Custom headers file location parameter
+# livy.server.headers-file =

@@ -303,6 +303,9 @@ object LivyConf {
 
   val SESSION_ALLOW_CUSTOM_CLASSPATH = Entry("livy.server.session.allow-custom-classpath", false)
 
+  // Custom headers file location parameter
+  val CUSTOM_HEADERS_FILE = Entry("livy.server.headers-file", null)
+
   val SPARK_MASTER = "spark.master"
   val SPARK_DEPLOY_MODE = "spark.submit.deployMode"
   val SPARK_JARS = "spark.jars"
