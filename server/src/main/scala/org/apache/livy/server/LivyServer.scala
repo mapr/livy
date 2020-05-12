@@ -317,6 +317,13 @@ class LivyServer extends Logging {
       server.context.addFilter(accessHolder, "/*", EnumSet.allOf(classOf[DispatcherType]))
     }
 
+    val headersFileLocation = livyConf.get(CUSTOM_HEADERS_FILE)
+    if (!headersFileLocation.isEmpty) {
+      info(s"Loading custom headers from '$headersFileLocation'")
+      val customHeadersHolder = new FilterHolder(new CustomHeadersFilter(headersFileLocation))
+      server.context.addFilter(customHeadersHolder, "/*", EnumSet.allOf(classOf[DispatcherType]))
+    }
+
     server.start()
 
     _thriftServerFactory.foreach {

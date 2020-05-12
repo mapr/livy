@@ -270,6 +270,9 @@ object LivyConf {
   // Max creating session in livyServer
   val SESSION_MAX_CREATION = Entry("livy.server.session.max-creation", 100)
 
+  // Custom headers file location parameter
+  val CUSTOM_HEADERS_FILE = Entry("livy.server.headers-file", null)
+
   val SPARK_MASTER = "spark.master"
   val SPARK_DEPLOY_MODE = "spark.submit.deployMode"
   val SPARK_JARS = "spark.jars"
