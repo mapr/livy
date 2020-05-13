@@ -188,7 +188,10 @@ class LivyServer extends Logging {
 
         if (!fileName.isEmpty) {
           getClass.getResourceAsStream(s"ui/static/$fileName") match {
-            case is: InputStream => new BufferedInputStream(is)
+            case is: InputStream => {
+              contentType = server.context.getMimeTypes().getMimeByExtension(fileName)
+              new BufferedInputStream(is)
+            }
             case null => NotFound(notFoundMsg)
           }
         } else {
