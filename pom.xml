@@ -104,6 +104,8 @@
     <scalatest.version>3.0.8</scalatest.version>
     <scalatra.version>2.6.5</scalatra.version>
     <java.version>1.8</java.version>
+    <minJavaVersion>1.8</minJavaVersion>
+    <maxJavaVersion>11</maxJavaVersion>
     <test.redirectToFile>true</test.redirectToFile>
     <execution.root>${user.dir}</execution.root>
     <spark.home>${execution.root}/dev/spark</spark.home>
@@ -222,7 +224,7 @@
     <module>scala-api/scala-${scala.binary.version}</module>
     <module>server</module>
     <module>test-lib</module>
-    <module>integration-test</module>
+    <!-- module>integration-test</module -->
   </modules>
 
   <dependencies>
@@ -1055,7 +1057,7 @@
         <configuration>
           <rules>
             <requireJavaVersion>
-              <version>${java.version}</version>
+              <version>[${minJavaVersion}.0,${maxJavaVersion}.1000}]</version>
             </requireJavaVersion>
             <requireMavenVersion>
               <version>[3.0.0,)</version>
@@ -1422,6 +1424,26 @@
       </build>
     </profile>
 
+    <profile>
+      <id>vendor-repo-mapr</id>
+      <activation>
+        <property>
+          <name>env.MAPR_MAVEN_REPO</name>
+        </property>
+      </activation>
+      <repositories>
+         <repository>
+          <id>MAPR_MAVEN_REPO</id>
+          <url>${env.MAPR_MAVEN_REPO}</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
   </profiles>
 
 </project>
