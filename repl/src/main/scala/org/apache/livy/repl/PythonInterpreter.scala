@@ -271,7 +271,7 @@ private class PythonInterpreter(
   override protected def sendShutdownRequest(): Unit = {
     sendRequest(Map(
       "msg_type" -> "shutdown_request",
-      "content" -> ()
+      "content" -> (())
     )).foreach { case rep =>
       warn(f"process failed to shut down while returning $rep")
     }

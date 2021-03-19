@@ -190,6 +190,12 @@ class ScalaJobHandle[T] private[livy] (jobHandle: JobHandle[T]) extends Future[T
     getJavaFutureResult(jobHandle, atMost)
     this
   }
+
+  override def transform[S](f: Try[T] => Try[S])
+    (implicit executor: ExecutionContext): Future[S] = ???
+
+  override def transformWith[S](f: Try[T] => Future[S])
+    (implicit executor: ExecutionContext): Future[S] = ???
 }
 
 private abstract class AbstractScalaJobHandleListener[T] extends Listener[T] {

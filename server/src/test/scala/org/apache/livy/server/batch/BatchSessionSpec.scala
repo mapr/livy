@@ -23,11 +23,10 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration.Duration
 
-import org.mockito.Matchers
 import org.mockito.Matchers.anyObject
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfter, FunSpec, ShouldMatchers}
-import org.scalatest.mock.MockitoSugar.mock
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.mockito.MockitoSugar.mock
 
 import org.apache.livy.{LivyBaseUnitTestSuite, LivyConf, Utils}
 import org.apache.livy.server.AccessManager
@@ -38,7 +37,7 @@ import org.apache.livy.utils.{AppInfo, Clock, SparkApp}
 class BatchSessionSpec
   extends FunSpec
   with BeforeAndAfter
-  with ShouldMatchers
+  with Matchers
   with LivyBaseUnitTestSuite {
 
   val script: Path = {
@@ -111,7 +110,7 @@ class BatchSessionSpec
       val expectedAppId = "APPID"
       batch.appIdKnown(expectedAppId)
       verify(sessionStore, atLeastOnce()).save(
-        Matchers.eq(BatchSession.RECOVERY_SESSION_TYPE), anyObject())
+        org.mockito.Matchers.eq(BatchSession.RECOVERY_SESSION_TYPE), anyObject())
       batch.appId shouldEqual Some(expectedAppId)
 
       val expectedAppInfo = AppInfo(Some("DRIVER LOG URL"), Some("SPARK UI URL"))
@@ -151,7 +150,7 @@ class BatchSessionSpec
 
       batch.appIdKnown("appId")
       verify(sessionStore, atLeastOnce()).save(
-        Matchers.eq(BatchSession.RECOVERY_SESSION_TYPE), anyObject())
+        org.mockito.Matchers.eq(BatchSession.RECOVERY_SESSION_TYPE), anyObject())
     }
 
     Seq[Option[String]](None, Some("Test Batch Session"), null)

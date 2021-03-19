@@ -148,6 +148,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>net.sf.py4j</groupId>
       <artifactId>py4j</artifactId>
       <scope>provided</scope>
@@ -175,6 +181,7 @@
                   <include>org.json4s:json4s-ast_${scala.binary.version}</include>
                   <include>org.json4s:json4s-core_${scala.binary.version}</include>
                   <include>org.json4s:json4s-jackson_${scala.binary.version}</include>
+                  <include>org.json4s:json4s-scalap_${scala.binary.version}</include>
                 </includes>
               </artifactSet>
               <filters>
@@ -211,6 +218,8 @@
                 json4s-ast_${scala.binary.version},
                 json4s-core_${scala.binary.version},
                 json4s-jackson_${scala.binary.version},
+                json4s-scalap_${scala.binary.version},
+                scala-xml_${scala.binary.version},
                 paranamer,
                 scalap
               </excludeArtifactIds>

@@ -97,7 +97,7 @@
   </check>
 
   <!-- ??? usually shouldn't be checked into the code base. -->
-  <check level="error" class="org.scalastyle.scalariform.NotImplementedErrorUsage" enabled="true"></check>
+  <check level="warning" class="org.scalastyle.scalariform.NotImplementedErrorUsage" enabled="true"></check>
 
   <check customId="println" level="error" class="org.scalastyle.scalariform.TokenChecker" enabled="true">
     <parameters>

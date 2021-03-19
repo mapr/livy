@@ -20,6 +20,7 @@ package org.apache.livy.server
 import javax.servlet.http.HttpServletResponse
 
 import org.scalatest.FunSpecLike
+import org.scalatest.Matchers._
 import org.scalatra.ScalatraServlet
 import org.scalatra.test.scalatest.ScalatraSuite
 
