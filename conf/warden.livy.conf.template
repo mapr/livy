@@ -1,0 +1,11 @@
+services=livy:1:cldb
+service.displayname=LivyServer
+service.command.start=/opt/mapr/livy/livy-0.7.0/bin/livy-server start
+service.command.stop=/opt/mapr/livy/livy-0.7.0/bin/livy-server stop
+service.command.type=BACKGROUND
+service.command.monitorcommand=/opt/mapr/livy/livy-0.7.0/bin/livy-server status
+service.port=8998
+service.ui.port=8998
+service.uri=/
+service.logs.location=/opt/mapr/livy/livy-0.7.0/logs/
+service.process.type=JAVA
