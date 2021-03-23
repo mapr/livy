@@ -3,7 +3,7 @@
 # Copyright (c) 2009 & onwards. MapR Tech, Inc., All rights reserved
 #######################################################################
 #
-# Configure script for Hue Livy
+# Configure script for Livy
 #
 # This script is normally run by the core configure.sh to setup Livy
 # connect during install. If it is run standalone, need to correctly
@@ -37,7 +37,7 @@ MAPR_CONF_DIR=${MAPR_CONF_DIR:-"${MAPR_HOME}/conf"}
 LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
 LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
 
-WARDEN_LIVY_SRC="${LIVY_HOME}/conf/warden.livy.conf"
+WARDEN_LIVY_SRC="${LIVY_HOME}/conf/warden.livy.conf.template"
 WARDEN_LIVY_CONF="${MAPR_CONF_DIR}/conf.d/warden.livy.conf"
 
 WARDEN_HEAPSIZE_MIN_KEY="service.heapsize.min"
