@@ -20,12 +20,12 @@
   <parent>
     <groupId>org.apache.livy</groupId>
     <artifactId>livy-main</artifactId>
-    <version>0.5.0-mapr-SNAPSHOT</version>
+    <version>0.5.0-mapr-1912-r1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>livy-assembly</artifactId>
-  <version>0.5.0-mapr-SNAPSHOT</version>
+  <version>0.5.0-mapr-1912-r1</version>
   <packaging>pom</packaging>
 
   <properties>
