@@ -43,6 +43,7 @@ export HADOOP_CONF_DIR="${HADOOP_HOME}/etc/hadoop"
 export SPARK_VERSION=$(cat "${MAPR_HOME}/spark/sparkversion")
 export SPARK_HOME="${MAPR_HOME}/spark/spark-${SPARK_VERSION}"
 
-export PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.4-src.zip:${SPARK_HOME}/python/:${PYTHONPATH}"
+py4j_file=$(find "${SPARK_HOME}/python/lib/" -maxdepth 1 -type f -name "py4j-*-src.zip" | sort --version-sort | tail -n 1)
+export PYTHONPATH="${py4j_file}:${SPARK_HOME}/python/:${PYTHONPATH}"
 
 export CLASSPATH="$(mapr classpath):${SPARK_HOME}/jars/*"
