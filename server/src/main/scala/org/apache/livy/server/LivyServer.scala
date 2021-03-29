@@ -103,7 +103,8 @@ class LivyServer extends Logging {
       _thriftServerFactory = Some(ThriftServerFactory.getInstance)
     }
 
-    if (UserGroupInformation.isSecurityEnabled) {
+    if (UserGroupInformation.isSecurityEnabled
+      && livyConf.get(AUTH_TYPE) == KerberosAuthenticationHandler.TYPE) {
       // If Hadoop security is enabled, run kinit periodically. runKinit() should be called
       // before any Hadoop operation, otherwise Kerberos exception will be thrown.
       executor = Executors.newScheduledThreadPool(1,
