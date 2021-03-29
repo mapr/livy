@@ -102,36 +102,35 @@ init_livy_confs() {
 }
 
 conf_uncomment() {
-    local conf_file="$1"
-    local property_name="$2"
+    local file="$1"
+    local name="$2"
     local delim="="
-    sed -i "s|#*\s*${property_name}\s*${delim}|${property_name} ${delim}|" "${conf_file}"
+    sed -i "1,/#*\s*${name}\s*${delim}/ s|#*\s*${name}\s*${delim}|${name} ${delim}|" "${file}"
 }
 
 conf_comment() {
-    local conf_file="$1"
-    local property_name="$2"
+    local file="$1"
+    local name="$2"
     local delim="="
-    sed -i "s|#*\s*${property_name}\s*${delim}|# ${property_name} ${delim}|" "${conf_file}"
+    sed -i "s|#*\s*${name}\s*${delim}|# ${name} ${delim}|" "${file}"
 }
 
 conf_get_property() {
-    local conf_file="$1"
-    local property_name="$2"
+    local file="$1"
+    local name="$2"
     local delim="="
-    grep "^\s*${property_name}" "${conf_file}" | sed "s|^\s*${property_name}\s*${delim}\s*||"
+    grep "^\s*${name}\s*${delim}" "${file}" | sed "s|^\s*${name}\s*${delim}\s*||"
 }
 
 conf_set_property() {
-    local conf_file="$1"
-    local property_name="$2"
-    local property_value="$3"
+    local file="$1"
+    local name="$2"
+    local value="$3"
     local delim="="
-    if grep -q "^\s*${property_name}\s*${delim}" "${conf_file}"; then
-        # modify property
-        sed -i -r "s|^\s*${property_name}\s*${delim}.*$|${property_name}${delim}${property_value}|" "${conf_file}"
+    if grep -q "^\s*${name}\s*${delim}" "${file}"; then
+        sed -i -r "1,/^\s*${name}\s*${delim}.*$/ s|^\s*${name}\s*${delim}.*$|${name}${delim}${value}|" "${file}"
     else
-        echo "${property_name}${delim}${property_value}" >> "${conf_file}"
+        echo "${name}${delim}${value}" >> "${file}"
     fi
 }
 
@@ -159,14 +158,20 @@ configure_secure() {
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
 
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class" "org.apache.hadoop.security.authentication.server.AuthenticationFilter"
+
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type" "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler"
+
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "true"
 }
 
 configure_unsecure() {
-    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
-    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" ""
     conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
+    conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class"
+    conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type"
 
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "false"

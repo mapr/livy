@@ -178,6 +178,11 @@ livy.impersonation.enabled = true
 # submitted session state, statement results.
 # livy.server.access-control.view-users =
 #
+# MapR authentication can be configured via custom authentication filter:
+# livy.server.auth.type = multiauth
+# livy.server.auth.multiauth.class = org.apache.hadoop.security.authentication.server.AuthenticationFilter
+# livy.server.auth.multiauth.param.type = org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler
+#
 # Authentication support for Livy server
 # Livy has a built-in SPnego authentication support for HTTP requests  with below configurations.
 # livy.server.auth.type = kerberos
