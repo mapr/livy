@@ -160,6 +160,8 @@
 
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.8.3.0-mapr-SNAPSHOT</zookeeper.version>
+    <zookeeper.scope>provided</zookeeper.scope>
+    <curator.scope>${zookeeper.scope}</curator.scope>
 
     <!--
       Properties for the copyright header style checks. Modules that use the ASF header
