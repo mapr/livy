@@ -131,6 +131,8 @@
 
     <curator.version>4.2.0</curator.version>
     <zookeeper.version>3.5.6.0-mapr-2009</zookeeper.version>
+    <zookeeper.scope>provided</zookeeper.scope>
+    <curator.scope>${zookeeper.scope}</curator.scope>
 
     <!--
       Properties for the copyright header style checks. Modules that use the ASF header
