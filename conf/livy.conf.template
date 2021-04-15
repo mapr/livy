@@ -190,6 +190,10 @@ livy.impersonation.enabled = true
 # livy.server.auth.kerberos.keytab = <spnego keytab>
 # livy.server.auth.kerberos.name-rules = DEFAULT
 #
+# Principal and keytab for Livy server.
+# livy.server.launch.kerberos.principal = <livy principal>
+# livy.server.launch.kerberos.keytab = <livy keytab>
+#
 # If user wants to use custom authentication filter, configurations are:
 # livy.server.auth.type = <custom>
 # livy.server.auth.<custom>.class = <class of custom auth filter>
