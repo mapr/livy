@@ -197,6 +197,18 @@
       </snapshots>
     </repository>
     <repository>
+      <id>apache-snapshots</id>
+      <!-- Required to get org.apache.apache-incubator-disclaimer-resource-bundle:1.2-SNAPSHOT artifact on release build -->
+      <name>Apache Snapshots Repository</name>
+      <url>https://repository.apache.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>repository.mapr.com</id>
       <url>http://repository.mapr.com/maven/</url>
       <releases>
