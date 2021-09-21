@@ -82,12 +82,20 @@ create_restart_file() {
     mkdir -p "${MAPR_CONF_DIR}/restart"
     cat > "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart" <<'EOF'
 #!/bin/bash
-MAPR_HOME=${MAPR_HOME:-/opt/mapr}
-MAPR_USER=${MAPR_USER:-mapr}
-if [ -z "$MAPR_TICKETFILE_LOCATION" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
+MAPR_HOME="${MAPR_HOME:-/opt/mapr}"
+MAPR_USER="${MAPR_USER:-mapr}"
+
+if [ -z "$MAPR_TICKETFILE_LOCATION" ]; then
+  isSecured="false"
+  if [ -e "${MAPR_HOME}/conf/mapr-clusters.conf" ]; then
+    isSecured=$(head -n1 "${MAPR_HOME}/conf/mapr-clusters.conf" | grep -o 'secure=\w*' | cut -d '=' -f 2)
+  fi
+  if [ "$isSecured" = "true" ] && [ -e "${MAPR_HOME}/conf/mapruserticket" ]; then
     export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
+  fi
 fi
-sudo -u $MAPR_USER -E maprcli node services -action restart -name livy -nodes $(hostname)
+
+maprcli node services -action restart -name livy -nodes $(hostname)
 EOF
     chmod +x "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
     chown $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/livy-${LIVY_VERSION}.restart"
