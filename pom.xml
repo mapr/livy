@@ -78,7 +78,7 @@
   </mailingLists>
 
   <properties>
-    <hadoop.version>2.7.6.0-eep-800-SNAPSHOT</hadoop.version>
+    <hadoop.version>2.7.6.200-eep-810-SNAPSHOT</hadoop.version>
     <hadoop.scope>provided</hadoop.scope>
     <spark.scala-2.12.version>3.1.2.0-eep-SNAPSHOT</spark.scala-2.12.version>
     <spark.version>${spark.scala-2.12.version}</spark.version>
