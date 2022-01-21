@@ -47,3 +47,12 @@ py4j_file=$(find "${SPARK_HOME}/python/lib/" -maxdepth 1 -type f -name 'py4j-*-s
 export PYTHONPATH="${py4j_file}:${SPARK_HOME}/python/:${PYTHONPATH}"
 
 export CLASSPATH="$(mapr classpath):$(hadoop classpath):${SPARK_HOME}/jars/*"
+
+get_fips_mode=$(sysctl crypto.fips_enabled 2> /dev/null)
+fips_enabled='crypto.fips_enabled = 1'
+if [ "$get_fips_mode" = "$fips_enabled" ]; then
+  is_fips="true"
+fi
+if [ "$is_fips" = "true" ]; then
+    export LIVY_SERVER_JAVA_OPTS="$MAPR_ALTERNATE_JAVA_SECURITY $LIVY_SERVER_JAVA_OPTS"
+fi

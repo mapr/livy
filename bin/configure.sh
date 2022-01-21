@@ -66,6 +66,14 @@ MAPR_GROUP=${MAPR_GROUP:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.group" "$D
 MAPR_GROUP=${MAPR_GROUP:-$MAPR_USER}
 
 
+set_is_fips() {
+  get_fips_mode=$(sysctl crypto.fips_enabled 2> /dev/null)
+  fips_enabled='crypto.fips_enabled = 1'
+  if [ "$get_fips_mode" = "$fips_enabled" ]; then
+    is_fips="true"
+  fi
+}
+
 read_secure() {
     [ -e "$LIVY_FILE_SECURE" ] && cat "$LIVY_FILE_SECURE"
 }
@@ -196,6 +204,11 @@ configure_headers_unsecure() {
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.headers-file" "${LIVY_HOME}/conf/jetty-headers-unsecure.xml"
 }
 
+configure_fips() {
+    conf_uncomment "${LIVY_HOME}/conf/livy-client.conf" "livy.rsc.rpc.sasl.mechanisms"
+    conf_set_property "${LIVY_HOME}/conf/livy-client.conf" "livy.rsc.rpc.sasl.mechanisms" "SCRAM-SHA-256"
+}
+
 setup_warden_conf() {
     local curr_heapsize_min
     local curr_heapsize_max
@@ -281,6 +294,11 @@ if [ "$isOnlyRoles" = "1" ]; then
         elif [ "$isSecure" = "false" ]; then
             configure_unsecure
         fi
+    fi
+
+    set_is_fips
+    if [ "$is_fips" = "true" ]; then
+      configure_fips
     fi
 
     # This script can be launched without "isSecure" parameter, so we check the content of .isSecure file.

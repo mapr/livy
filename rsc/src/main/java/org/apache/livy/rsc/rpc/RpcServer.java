@@ -23,6 +23,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,6 +38,12 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.scram.CredentialCache;
+import org.apache.hadoop.security.scram.ScramCredential;
+import org.apache.hadoop.security.scram.ScramCredentialCallback;
+import org.apache.hadoop.security.scram.ScramFormatter;
+import org.apache.hadoop.security.scram.ScramMechanism;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -72,6 +79,11 @@ public class RpcServer implements Closeable {
   private final String portRange;
   private static enum PortRangeSchema{START_PORT, END_PORT, MAX};
   private final String PORT_DELIMITER = "~";
+
+  private String scramConfig = "scram/scram-site.xml";
+  private final String scramPasswordConf = "scram.password";
+  Configuration hadoopConf;
+
   /**
    * Creating RPC Server
    * @param lconf The default RSC configs
@@ -192,10 +204,36 @@ public class RpcServer implements Closeable {
 
   /**
    * Creates a secret for identifying a client connection.
+   * Used to create secret when SCRAM SASL mechanism is used.
+   * Reads the corresponding secret using Hadoop Credentials Provider API.
+   *
+   * @return the secret
+   */
+  private String createSecretScram() {
+    String secret = null;
+    try {
+      if (hadoopConf == null) {
+        hadoopConf = new Configuration();
+        hadoopConf.addResource(scramConfig);
+      }
+      secret = new String(hadoopConf.getPassword(scramPasswordConf));
+    } catch (IOException ex) {
+      LOG.error("Exception while getting password for SCRAM", ex);
+      ex.printStackTrace();
+    }
+    return secret;
+  }
+
+  /**
+   * Creates a secret for identifying a client connection.
    *
    * @return the secret
    */
   public String createSecret() {
+    if (ScramMechanism.isScram(config.get(SASL_MECHANISMS))) {
+      return createSecretScram();
+    }
+
     byte[] secret = new byte[config.getInt(RPC_SECRET_RANDOM_BITS) / 8];
     RND.nextBytes(secret);
 
@@ -261,6 +299,8 @@ public class RpcServer implements Closeable {
     private ScheduledFuture<?> cancelTask;
     private String clientId;
     private ClientInfo client;
+
+    private CredentialCache credentialCache;
 
     SaslServerHandler(RSCConf config) throws IOException {
       super(config);
@@ -346,10 +386,31 @@ public class RpcServer implements Closeable {
         } else if (cb instanceof RealmCallback) {
           RealmCallback rb = (RealmCallback) cb;
           rb.setText(rb.getDefaultText());
+        } else if (cb instanceof ScramCredentialCallback) {
+          if (credentialCache == null) {
+            createScramCredentialCache();
+          }
+          String mechanismName = server.getMechanismName();
+          CredentialCache.Cache<ScramCredential> cc = credentialCache.cache(mechanismName, ScramCredential.class);
+          ((ScramCredentialCallback) cb).scramCredential(cc.get(clientId));
         }
       }
     }
 
+    private void createScramCredentialCache() {
+      credentialCache = new CredentialCache();
+      String mechanismName = server.getMechanismName();
+      ScramMechanism mechanism = ScramMechanism.forMechanismName((mechanismName));
+      try {
+        credentialCache.createCache(mechanismName, ScramCredential.class);
+        ScramFormatter formatter = new ScramFormatter(mechanism);
+        ScramCredential generatedCred = formatter.generateCredential(client.secret, mechanism.minIterations());
+        CredentialCache.Cache<ScramCredential> shaCache = credentialCache.cache(mechanismName, ScramCredential.class);
+        shaCache.put(clientId, generatedCred);
+      } catch (NoSuchAlgorithmException ex) {
+        LOG.error("Can't find " + mechanismName + " algorithm", ex);
+      }
+    }
   }
 
   private static class ClientInfo {
