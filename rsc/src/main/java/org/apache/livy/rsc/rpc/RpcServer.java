@@ -80,6 +80,7 @@ public class RpcServer implements Closeable {
   private static enum PortRangeSchema{START_PORT, END_PORT, MAX};
   private final String PORT_DELIMITER = "~";
 
+  private final String SCRAM_MECHANISM_PREFIX = "SCRAM-";
   private String scramConfig = "scram/scram-site.xml";
   private final String scramPasswordConf = "scram.password";
   Configuration hadoopConf;
@@ -230,7 +231,7 @@ public class RpcServer implements Closeable {
    * @return the secret
    */
   public String createSecret() {
-    if (ScramMechanism.isScram(config.get(SASL_MECHANISMS))) {
+    if (config.get(SASL_MECHANISMS).startsWith(SCRAM_MECHANISM_PREFIX)) {
       return createSecretScram();
     }
 
@@ -386,7 +387,8 @@ public class RpcServer implements Closeable {
         } else if (cb instanceof RealmCallback) {
           RealmCallback rb = (RealmCallback) cb;
           rb.setText(rb.getDefaultText());
-        } else if (cb instanceof ScramCredentialCallback) {
+        } else if (config.get(SASL_MECHANISMS).startsWith(SCRAM_MECHANISM_PREFIX) &&
+          cb instanceof ScramCredentialCallback) {
           if (credentialCache == null) {
             createScramCredentialCache();
           }
@@ -400,7 +402,7 @@ public class RpcServer implements Closeable {
     private void createScramCredentialCache() {
       credentialCache = new CredentialCache();
       String mechanismName = server.getMechanismName();
-      ScramMechanism mechanism = ScramMechanism.forMechanismName((mechanismName));
+      ScramMechanism mechanism = ScramMechanism.forMechanismName(mechanismName);
       try {
         credentialCache.createCache(mechanismName, ScramCredential.class);
         ScramFormatter formatter = new ScramFormatter(mechanism);
