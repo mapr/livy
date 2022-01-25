@@ -50,7 +50,7 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
       https.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
       https.addCustomizer(new SecureRequestCustomizer())
 
-      val sslContextFactory = new SslContextFactory()
+      val sslContextFactory = new SslContextFactory.Server()
       val sslConfig = WebSecurityManager.getSslConfig(SslConfigScope.SCOPE_ALL)
       Option(sslConfig.getServerKeystoreLocation)
         .foreach(sslContextFactory.setKeyStorePath)
@@ -71,7 +71,7 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
       https.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
       https.addCustomizer(new SecureRequestCustomizer())
 
-      val sslContextFactory = new SslContextFactory()
+      val sslContextFactory = new SslContextFactory.Server()
       sslContextFactory.setKeyStorePath(keystore)
 
       val credentialProviderPath = livyConf.get(LivyConf.HADOOP_CREDENTIAL_PROVIDER_PATH)
