@@ -78,9 +78,9 @@
   </mailingLists>
 
   <properties>
-    <hadoop.version>2.7.6.200-eep-810-SNAPSHOT</hadoop.version>
+    <hadoop.version>2.7.6.200-eep-810</hadoop.version>
     <hadoop.scope>provided</hadoop.scope>
-    <spark.scala-2.12.version>3.2.0.0-eep-SNAPSHOT</spark.scala-2.12.version>
+    <spark.scala-2.12.version>3.2.0.0-eep-810</spark.scala-2.12.version>
     <spark.version>${spark.scala-2.12.version}</spark.version>
     <kubernetes.client.version>4.9.2</kubernetes.client.version>
     <hive.version>3.0.0</hive.version>
@@ -94,7 +94,7 @@
     <junit.version>4.11</junit.version>
     <libthrift.version>0.9.3</libthrift.version>
     <kryo.version>4.0.2</kryo.version>
-    <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
+    <mapr.version>6.2.0.0-mapr</mapr.version>
     <metrics.version>3.1.0</metrics.version>
     <mockito.version>1.9.5</mockito.version>
     <netty.spark-2.12.version>4.1.68.Final</netty.spark-2.12.version>
