@@ -35,7 +35,7 @@ Add the Livy client dependency to your application's POM:
 <dependency>
   <groupId>org.apache.livy</groupId>
   <artifactId>livy-client-http</artifactId>
-  <version>0.7.0.0-eep-SNAPSHOT</version>
+  <version>0.7.0.200-eep-810</version>
 </dependency>
 ```
 
