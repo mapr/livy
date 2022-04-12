@@ -78,7 +78,7 @@
   </mailingLists>
 
   <properties>
-    <hadoop.version>2.7.3</hadoop.version>
+    <hadoop.version>3.2.3</hadoop.version>
     <hadoop.scope>compile</hadoop.scope>
     <spark.scala-2.11.version>1.6.2</spark.scala-2.11.version>
     <spark.scala-2.10.version>1.6.2</spark.scala-2.10.version>
