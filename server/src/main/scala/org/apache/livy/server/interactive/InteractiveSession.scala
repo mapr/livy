@@ -112,6 +112,19 @@ object InteractiveSession extends Logging {
         opt.foreach { value => builderProperties.put(key, value) }
       }
 
+      if (livyConf.isRunningOnKubernetes) {
+        val k8sOpts: Map[String, Option[String]] = Map(
+          "spark.kubernetes.driver.request.cores" -> request.driverCores.map(_.toString),
+          "spark.kubernetes.driver.limit.cores" -> request.driverCores.map(_.toString),
+          "spark.kubernetes.executor.request.cores" -> request.executorCores.map(_.toString),
+          "spark.kubernetes.executor.limit.cores" -> request.executorCores.map(_.toString)
+        )
+
+        k8sOpts.foreach { case (key, opt) =>
+          opt.foreach { value => builderProperties.getOrElseUpdate(key, value) }
+        }
+      }
+
       builderProperties.getOrElseUpdate("spark.app.name", s"livy-session-$id")
 
       info(s"Creating Interactive session $id: [owner: $owner, request: $request]")
