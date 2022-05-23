@@ -86,6 +86,25 @@ object BatchSession extends Logging {
       request.queue.foreach(builder.queue)
       request.name.foreach(builder.name)
 
+      if (livyConf.isRunningOnKubernetes) {
+        val k8sOpts: Map[String, Option[String]] = Map(
+          "spark.kubernetes.driver.request.cores" -> request.driverCores.map(_.toString),
+          "spark.kubernetes.driver.limit.cores" -> request.driverCores.map(_.toString),
+          "spark.kubernetes.executor.request.cores" -> request.executorCores.map(_.toString),
+          "spark.kubernetes.executor.limit.cores" -> request.executorCores.map(_.toString)
+        )
+
+        k8sOpts.foreach { case (key, opt) =>
+          opt.foreach {
+            value => {
+              if (builder.conf(key) == null) {
+                builder.conf(key, value)
+              }
+            }
+          }
+        }
+      }
+
       sessionStore.save(BatchSession.RECOVERY_SESSION_TYPE, s.recoveryMetadata)
 
       builder.redirectOutput(Redirect.PIPE)
