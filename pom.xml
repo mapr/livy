@@ -80,27 +80,27 @@
   <properties>
     <hadoop.version>3.3.3.0-mapr-eep-900-SNAPSHOT</hadoop.version>
     <hadoop.scope>provided</hadoop.scope>
-    <spark.scala-2.12.version>3.2.0.0-eep-SNAPSHOT</spark.scala-2.12.version>
+    <spark.scala-2.12.version>3.3.0.0-eep-SNAPSHOT</spark.scala-2.12.version>
     <spark.version>${spark.scala-2.12.version}</spark.version>
-    <kubernetes.client.version>4.9.2</kubernetes.client.version>
+    <kubernetes.client.version>5.12.2</kubernetes.client.version>
     <hive.version>3.0.0</hive.version>
     <commons-codec.version>1.15</commons-codec.version>
     <httpclient.version>4.5.13</httpclient.version>
     <httpcore.version>4.4.14</httpcore.version>
     <jackson.version>2.12.3</jackson.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-    <jetty.version>9.4.39.v20210325</jetty.version>
-    <json4s.version>3.6.6</json4s.version>
+    <jetty.version>9.4.46.v20220331</jetty.version>
+    <json4s.version>3.7.0-M11</json4s.version>
     <junit.version>4.11</junit.version>
-    <libthrift.version>0.9.3</libthrift.version>
+    <libthrift.version>0.13.0</libthrift.version>
     <kryo.version>4.0.2</kryo.version>
     <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
-    <metrics.version>3.1.0</metrics.version>
+    <metrics.version>4.2.7</metrics.version>
     <mockito.version>1.9.5</mockito.version>
-    <netty.spark-2.12.version>4.1.68.Final</netty.spark-2.12.version>
+    <netty.spark-2.12.version>4.1.74.Final</netty.spark-2.12.version>
     <netty.version>${netty.spark-2.12.version}</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <py4j.version>0.10.9.2</py4j.version>
+    <py4j.version>0.10.9.5</py4j.version>
     <scala-2.12.version>2.12.15</scala-2.12.version>
     <scala.binary.version>2.12</scala.binary.version>
     <scala.version>${scala-2.12.version}</scala.version>
@@ -113,9 +113,9 @@
     <execution.root>${user.dir}</execution.root>
     <spark.home>${execution.root}/dev/spark</spark.home>
     <spark.bin.download.url>
-      https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
+      https://archive.apache.org/dist/spark/spark-3.3.0/spark-3.3.0-bin-hadoop3.tgz
     </spark.bin.download.url>
-    <spark.bin.name>spark-2.4.7-bin-hadoop2.7</spark.bin.name>
+    <spark.bin.name>spark-3.3.0-bin-hadoop3</spark.bin.name>
     <!--  used for testing, NCSARequestLog use it for access log  -->
     <livy.log.dir>${basedir}/target</livy.log.dir>
 
