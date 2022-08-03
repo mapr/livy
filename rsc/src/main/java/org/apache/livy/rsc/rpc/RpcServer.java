@@ -38,12 +38,6 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.scram.CredentialCache;
-import org.apache.hadoop.security.scram.ScramCredential;
-import org.apache.hadoop.security.scram.ScramCredentialCallback;
-import org.apache.hadoop.security.scram.ScramFormatter;
-import org.apache.hadoop.security.scram.ScramMechanism;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -53,6 +47,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.ScheduledFuture;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.scram.CredentialCache;
+import org.apache.hadoop.security.scram.ScramCredential;
+import org.apache.hadoop.security.scram.ScramCredentialCallback;
+import org.apache.hadoop.security.scram.ScramFormatter;
+import org.apache.hadoop.security.scram.ScramMechanism;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -393,7 +393,8 @@ public class RpcServer implements Closeable {
             createScramCredentialCache();
           }
           String mechanismName = server.getMechanismName();
-          CredentialCache.Cache<ScramCredential> cc = credentialCache.cache(mechanismName, ScramCredential.class);
+          CredentialCache.Cache<ScramCredential> cc =
+            credentialCache.cache(mechanismName, ScramCredential.class);
           ((ScramCredentialCallback) cb).scramCredential(cc.get(clientId));
         }
       }
@@ -406,8 +407,10 @@ public class RpcServer implements Closeable {
       try {
         credentialCache.createCache(mechanismName, ScramCredential.class);
         ScramFormatter formatter = new ScramFormatter(mechanism);
-        ScramCredential generatedCred = formatter.generateCredential(client.secret, mechanism.minIterations());
-        CredentialCache.Cache<ScramCredential> shaCache = credentialCache.cache(mechanismName, ScramCredential.class);
+        ScramCredential generatedCred =
+          formatter.generateCredential(client.secret, mechanism.minIterations());
+        CredentialCache.Cache<ScramCredential> shaCache =
+          credentialCache.cache(mechanismName, ScramCredential.class);
         shaCache.put(clientId, generatedCred);
       } catch (NoSuchAlgorithmException ex) {
         LOG.error("Can't find " + mechanismName + " algorithm", ex);
