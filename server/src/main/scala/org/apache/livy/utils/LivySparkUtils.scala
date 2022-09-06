@@ -32,8 +32,8 @@ object LivySparkUtils extends Logging {
   private val _defaultSparkScalaVersion = SortedMap(
     // Spark 3.0 + Scala 2.12
     (3, 0) -> "2.12",
-    // Spark 2.4 + Scala 2.11
-    (2, 4) -> "2.11",
+    // MapR Spark 2.4 built with Scala 2.12
+    (2, 4) -> "2.12",
     // Spark 2.3 + Scala 2.11
     (2, 3) -> "2.11",
     // Spark 2.2 + Scala 2.11
@@ -42,7 +42,7 @@ object LivySparkUtils extends Logging {
 
   // Supported Spark version
   private val MIN_VERSION = (2, 2)
-  private val MAX_VERSION = (3, 1)
+  private val MAX_VERSION = (3, 6)
 
   private val sparkVersionRegex = """version (.*)""".r.unanchored
   private val scalaVersionRegex = """Scala version (.*), Java""".r.unanchored
