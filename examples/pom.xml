@@ -23,13 +23,13 @@
   <parent>
     <groupId>org.apache.livy</groupId>
     <artifactId>livy-main</artifactId>
-    <version>0.7.0.0-eep-SNAPSHOT</version>
+    <version>0.7.0.300-eep-900</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>org.apache.livy</groupId>
   <artifactId>livy-examples</artifactId>
-  <version>0.7.0.0-eep-SNAPSHOT</version>
+  <version>0.7.0.300-eep-900</version>
   <packaging>jar</packaging>
 
   <properties>
