@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+# Whether or not enable SSL for HTTP endpoint.
+# Available options are: true | false | auto.
+# Setting this to auto will automatically configure SSL in accordance with DataFabric cluster security configuration.
+# livy.ssl.enable = auto
+
 # Use this keystore for the SSL certificate and key.
 # livy.keystore =
 

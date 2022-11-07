@@ -37,14 +37,20 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
   server.setStopTimeout(1000)
   server.setStopAtShutdown(true)
 
-  val (connector, protocol) = Option(livyConf.get(LivyConf.SSL_KEYSTORE)) match {
-    case None if !livyConf.isMaprSecured =>
+  val (connector, protocol) = livyConf.get(LivyConf.SSL_ENABLE) match {
+    case "false" =>
       val http = new HttpConfiguration()
       http.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
       http.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
       (new ServerConnector(server, new HttpConnectionFactory(http)), "http")
 
-    case None if livyConf.isMaprSecured =>
+    case "auto" if !livyConf.isMaprSecured =>
+      val http = new HttpConfiguration()
+      http.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
+      http.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
+      (new ServerConnector(server, new HttpConnectionFactory(http)), "http")
+
+    case "auto" if livyConf.isMaprSecured =>
       val https = new HttpConfiguration()
       https.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
       https.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
@@ -65,7 +71,8 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
         new SslConnectionFactory(sslContextFactory, "http/1.1"),
         new HttpConnectionFactory(https)), "https")
 
-    case Some(keystore) =>
+    case "true" =>
+      val keystore = livyConf.get(LivyConf.SSL_KEYSTORE)
       val https = new HttpConfiguration()
       https.setRequestHeaderSize(livyConf.getInt(LivyConf.REQUEST_HEADER_SIZE))
       https.setResponseHeaderSize(livyConf.getInt(LivyConf.RESPONSE_HEADER_SIZE))
@@ -96,6 +103,8 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
       (new ServerConnector(server,
         new SslConnectionFactory(sslContextFactory, "http/1.1"),
         new HttpConnectionFactory(https)), "https")
+
+    case _ => throw new IllegalArgumentException(s"Invalid value of 'livy.ssl.enable' configuration option.")
   }
 
   connector.setHost(host)
