@@ -20,6 +20,7 @@ package org.apache.livy.utils
 import scala.collection.JavaConverters._
 
 import org.apache.livy.LivyConf
+import org.apache.livy.server.datafabric.{HistoryServerUtils, K8SUserInfo, UserSecretUtils}
 
 object AppInfo {
   val DRIVER_LOG_URL_NAME = "driverLogUrl"
@@ -67,11 +68,13 @@ object SparkApp {
    *
    * @param uniqueAppTag A tag that can uniquely identify the application.
    * @param livyConf
+   * @param owner
    * @param sparkConf
    */
   def prepareSparkConf(
       uniqueAppTag: String,
       livyConf: LivyConf,
+      owner: String,
       sparkConf: Map[String, String]): Map[String, String] = {
     if (livyConf.isRunningOnYarn()) {
       val userYarnTags = sparkConf.get(SPARK_YARN_TAG_KEY).map("," + _).getOrElse("")
@@ -81,11 +84,37 @@ object SparkApp {
         "spark.yarn.submit.waitAppCompletion" -> "false")
     } else if (livyConf.isRunningOnKubernetes()) {
       import KubernetesConstants._
-      sparkConf ++ Map(
+      var result = sparkConf ++ Map(
         s"spark.kubernetes.driver.label.$SPARK_APP_TAG_LABEL" -> uniqueAppTag,
         s"spark.kubernetes.executor.label.$SPARK_APP_TAG_LABEL" -> uniqueAppTag,
         "spark.kubernetes.submission.waitAppCompletion" -> "false",
         "spark.ui.proxyBase" -> s"/$uniqueAppTag")
+
+      val userInfo = K8SUserInfo(owner, livyConf)
+
+      result ++= Map("spark.kubernetes.namespace" -> userInfo.namespace)
+      result ++= Map("spark.ui.view.acls" -> userInfo.namespace)
+
+      if (userInfo.driverSA.nonEmpty) {
+        result ++= Map("spark.kubernetes.authenticate.driver.serviceAccountName" ->
+          userInfo.driverSA.get)
+      }
+
+      if (userInfo.executorSA.nonEmpty) {
+        result ++= Map("spark.kubernetes.authenticate.executor.serviceAccountName" ->
+          userInfo.executorSA.get)
+      }
+
+      val historyServerUtils = new HistoryServerUtils(userInfo.namespace)
+      result ++= historyServerUtils.generateHistoryServerConfigs()
+
+      if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
+        val userSecretUtils = new UserSecretUtils(userInfo, userInfo.namespace, livyConf)
+        userSecretUtils.ensureUserSecret()
+        result ++= Map("spark.mapr.user.secret" -> userSecretUtils.userSecretName)
+      }
+
+      result
     } else {
       sparkConf
     }

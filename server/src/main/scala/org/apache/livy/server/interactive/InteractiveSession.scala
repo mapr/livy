@@ -105,7 +105,7 @@ object InteractiveSession extends Logging {
       request.conf)
 
     val client = mockClient.orElse {
-      val conf = SparkApp.prepareSparkConf(appTag, livyConf, prepareConf(
+      val conf = SparkApp.prepareSparkConf(appTag, livyConf, owner, prepareConf(
         request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf))
 
       val builderProperties = prepareBuilderProp(conf, request.kind, livyConf)
@@ -161,6 +161,8 @@ object InteractiveSession extends Logging {
       }
 
       builderProperties.getOrElseUpdate("spark.app.name", s"livy-session-$id")
+
+      info(s"Builder properties: [${builderProperties.toString()}]")
 
       info(s"Creating Interactive session $id: [owner: $owner, request: $request]")
       val builder = new LivyClientBuilder()

@@ -302,6 +302,29 @@ object LivyConf {
   // How often Livy polls Kubernetes to refresh Kubernetes app state.
   val KUBERNETES_POLL_INTERVAL = Entry("livy.server.kubernetes.poll-interval", "15s")
 
+  // Whether Livy Server should create DataFabric secret for users on session creation.
+  val KUBERNETES_CREATE_USER_SECRET = Entry("livy.server.kubernetes.createUserSecret", false)
+
+  // Type of lookup user mechanism implementation. Acceptable values are:
+  // 'nativesssd' - native integration via platform sssd configuration,
+  // 'uaconfigmap' - read user info from a configmap in user namespace.
+  val KUBERNETES_USER_LOOKUP_SERVICE = Entry("livy.server.kubernetes.userLookupService",
+    "nativesssd")
+
+  // String pattern to name user secret which would be created.
+  // Use '%s' placeholder for the username part to be replaced by session owner.
+  val KUBERNETES_USER_SECRET_PATTERN =
+    Entry("livy.server.kubernetes.userSecretPattern", "livy-user-secret-%s")
+
+  // String pattern to set session Namespace and ServiceAccount based on session owner.
+  // Use '%s' placeholder for the username part to be replaced by session owner.
+  val KUBERNETES_NAMESPACE_USER_PATTERN =
+    Entry("livy.server.kubernetes.namespacePattern", "")
+  val KUBERNETES_DRIVER_SA_USER_PATTERN =
+    Entry("livy.server.kubernetes.driverSaPattern", "")
+  val KUBERNETES_EXECUTOR_SA_USER_PATTERN =
+    Entry("livy.server.kubernetes.executorSaPattern", "")
+
   // How long to check livy session leakage.
   val KUBERNETES_APP_LEAKAGE_CHECK_TIMEOUT =
     Entry("livy.server.kubernetes.app-leakage.check-timeout", "600s")

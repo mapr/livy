@@ -294,3 +294,15 @@ livy.server.kubernetes.grafana.loki.enabled = false
 
 # Used to build links to Spark History Server pages on Spark App completion (Kubernetes only)
 # livy.ui.history-server-url = http://spark-history-server
+
+# Whether Livy Server should create DataFabric secret for users on session creation
+# livy.server.kubernetes.createUserSecret = false
+# String pattern to name user secret which would be created.
+# Use '%s' placeholder to be replaced by session owner.
+# livy.server.kubernetes.userSecretPattern = livy-user-secret-%s
+
+# String pattern to set K8s namespace
+# livy.server.kubernetes.namespacePattern =
+# String pattern to set K8s ServiceAccount
+# livy.server.kubernetes.driverSaPattern =
+# livy.server.kubernetes.executorSaPattern =

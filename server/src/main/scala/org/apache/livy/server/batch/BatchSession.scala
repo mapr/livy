@@ -79,6 +79,7 @@ object BatchSession extends Logging {
       val conf = SparkApp.prepareSparkConf(
         appTag,
         livyConf,
+        owner,
         prepareConf(
           request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf))
       require(request.file != null, "File is required.")
