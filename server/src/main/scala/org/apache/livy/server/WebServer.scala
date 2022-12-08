@@ -104,7 +104,9 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
         new SslConnectionFactory(sslContextFactory, "http/1.1"),
         new HttpConnectionFactory(https)), "https")
 
-    case _ => throw new IllegalArgumentException(s"Invalid value of 'livy.ssl.enable' configuration option.")
+    case _ =>
+      throw new IllegalArgumentException(
+        s"Invalid value of 'livy.ssl.enable' configuration option.")
   }
 
   connector.setHost(host)

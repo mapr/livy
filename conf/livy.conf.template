@@ -221,5 +221,8 @@ livy.impersonation.enabled = true
 # Kubernetes client default namespace
 # livy.server.kubernetes.defaultNamespace =
 
+# Whether Livy Server should create DataFabric secret for users on session creation
+# livy.server.kubernetes.createUserSecret = false
+
 # Custom headers file location parameter
 # livy.server.headers-file =

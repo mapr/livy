@@ -251,6 +251,9 @@ object LivyConf {
   // How often Livy polls Kubernetes to refresh Kubernetes app state.
   val KUBERNETES_POLL_INTERVAL = Entry("livy.server.kubernetes.poll-interval", "15s")
 
+  // Whether Livy Server should create DataFabric secret for users on session creation.
+  val KUBERNETES_CREATE_USER_SECRET = Entry("livy.server.kubernetes.createUserSecret", false)
+
   // How long to check livy session leakage.
   val KUBERNETES_APP_LEAKAGE_CHECK_TIMEOUT =
     Entry("livy.server.kubernetes.app-leakage.check-timeout", "600s")
