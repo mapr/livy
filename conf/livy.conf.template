@@ -246,6 +246,12 @@ livy.impersonation.enabled = true
 # Kubernetes client default namespace
 # livy.server.kubernetes.defaultNamespace =
 
+# Whether Livy Server should create DataFabric secret for users on session creation
+# livy.server.kubernetes.createUserSecret = false
+# String pattern to name user secret which would be created.
+# Use '%s' placeholder to be replaced by session owner.
+# livy.server.kubernetes.userSecretPattern = livy-user-secret-%s
+
 # Enable to allow custom classpath by proxy user in cluster mode
 # The below configuration parameter is disabled by default.
 # livy.server.session.allow-custom-classpath = true

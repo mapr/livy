@@ -39,6 +39,7 @@ import org.apache.livy.client.common.HttpMessages._
 import org.apache.livy.rsc.{PingJob, RSCClient, RSCConf}
 import org.apache.livy.rsc.driver.Statement
 import org.apache.livy.server.AccessManager
+import org.apache.livy.server.datafabric.UserSecretUtils
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions._
 import org.apache.livy.sessions.Session._
@@ -122,6 +123,18 @@ object InteractiveSession extends Logging {
 
         k8sOpts.foreach { case (key, opt) =>
           opt.foreach { value => builderProperties.getOrElseUpdate(key, value) }
+        }
+
+        if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
+          val userSecretUtils = new UserSecretUtils(owner, livyConf)
+          val secretCreated = userSecretUtils.ensureUserSecret
+          val secretName = userSecretUtils.userSecretName
+          if (secretCreated) {
+            info(s"Secret '${secretName}' for user '${owner}' has been created.")
+          } else {
+            info(s"Secret '${secretName}' for user '${owner}' already exists.")
+          }
+          builderProperties.put("spark.mapr.user.secret", secretName)
         }
       }
 
