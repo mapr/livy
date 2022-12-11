@@ -106,7 +106,7 @@ object BatchSession extends Logging {
         }
 
         if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
-          val userSecretUtils = new UserSecretUtils(owner)
+          val userSecretUtils = new UserSecretUtils(owner, livyConf)
           val secretCreated = userSecretUtils.ensureUserSecret
           val secretName = userSecretUtils.userSecretName
           if (secretCreated) {

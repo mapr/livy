@@ -42,6 +42,7 @@ object CLDBUtils extends Logging {
   private val TICKET_TYPE = "SERVICEWITHIMPERSONATION"
   val MAPR_CLUSTER: String = sys.env("MAPR_CLUSTER")
   val SECURE_CLUSTER: String = sys.env("SECURE_CLUSTER")
+    .stripLineEnd.trim.toLowerCase
 
   def getK8sCldbHosts: List[String] = {
     CLDB_HOSTS.zipWithIndex.map {

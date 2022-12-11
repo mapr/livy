@@ -254,6 +254,11 @@ object LivyConf {
   // Whether Livy Server should create DataFabric secret for users on session creation.
   val KUBERNETES_CREATE_USER_SECRET = Entry("livy.server.kubernetes.createUserSecret", false)
 
+  // String pattern to name user secret which would be created.
+  // Use '%s' placeholder for the username part to be replaced by session owner.
+  val KUBERNETES_USER_SECRET_PATTERN =
+    Entry("livy.server.kubernetes.userSecretPattern", "livy-user-secret-%s")
+
   // How long to check livy session leakage.
   val KUBERNETES_APP_LEAKAGE_CHECK_TIMEOUT =
     Entry("livy.server.kubernetes.app-leakage.check-timeout", "600s")

@@ -224,5 +224,9 @@ livy.impersonation.enabled = true
 # Whether Livy Server should create DataFabric secret for users on session creation
 # livy.server.kubernetes.createUserSecret = false
 
+# String pattern to name user secret which would be created.
+# Use '%s' placeholder to be replaced by session owner.
+# livy.server.kubernetes.userSecretPattern = livy-user-secret-%s
+
 # Custom headers file location parameter
 # livy.server.headers-file =
