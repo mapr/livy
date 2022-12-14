@@ -28,6 +28,7 @@ import javax.servlet.ServletException
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
@@ -38,22 +39,15 @@ object CLDBUtils extends Logging {
   private val CLDB_HOSTS = sys.env("MAPR_CLDB_HOSTS")
     .split(" ").toList
     .filter(_.nonEmpty).map(_.split(":")(0))
-  private val K8S_CLUSTER_DOMAIN = sys.env("DNS_DOMAIN")
   private val TICKET_TYPE = "SERVICEWITHIMPERSONATION"
   val MAPR_CLUSTER: String = sys.env("MAPR_CLUSTER")
   val SECURE_CLUSTER: String = sys.env("SECURE_CLUSTER")
     .stripLineEnd.trim.toLowerCase
 
-  def getK8sCldbHosts: List[String] = {
-    CLDB_HOSTS.zipWithIndex.map {
-      case (_, i) => s"cldb-${i}.cldb-svc.${MAPR_CLUSTER}.svc.${K8S_CLUSTER_DOMAIN}"
-    }
-  }
-
   def getTicketAndKey: String = {
     val err = new MutableInt
     err.SetValue(0)
-    val tk = Security.GetTicketAndKeyForCluster(ServerKey, CLDBUtils.MAPR_CLUSTER, err)
+    val tk = Security.GetTicketAndKeyForCluster(ServerKey, MAPR_CLUSTER, err)
     if (err.GetValue != 0) {
       throw new ServletException("Can not generate TicketAndKey for Livy Server to access CLDB.")
     }
@@ -79,7 +73,9 @@ object CLDBUtils extends Logging {
 
     try {
       debug(s"Trying to execute '${endpoint}' request.")
-      val httpClient = HttpClients.createDefault
+      val httpClientBuilder = HttpClients.custom
+      httpClientBuilder.setSSLHostnameVerifier(new NoopHostnameVerifier)
+      val httpClient = httpClientBuilder.build
       val httpResponse = httpClient.execute(request)
 
       response = EntityUtils.toString(httpResponse.getEntity)
@@ -96,7 +92,7 @@ object CLDBUtils extends Logging {
   }
 
   def genUserTicket(username: String): String = {
-    val cldbHosts = getK8sCldbHosts
+    val cldbHosts = CLDB_HOSTS
     val ticketAndKey = getTicketAndKey
 
     @tailrec
@@ -104,7 +100,7 @@ object CLDBUtils extends Logging {
       case Nil => null
       case cldbHost :: lastCldbs =>
         var response: String = null
-        response = CLDBUtils.requestGenTicket(cldbHost, username, ticketAndKey)
+        response = requestGenTicket(cldbHost, username, ticketAndKey)
         if (response != null) {
           debug(s"Got response with ticketAndKeyString from CLDB '${cldbHost}'.")
           return response
@@ -118,7 +114,7 @@ object CLDBUtils extends Logging {
         s"Can not generate user ticket using any of CLDBs provided: '${cldbHosts.mkString(", ")}'.")
     }
 
-    CLDBUtils.extractTicketFromGenTicketResponse(genTicketResponse)
+    extractTicketFromGenTicketResponse(genTicketResponse)
   }
 
   def encodeTicketForWritingToFile(ticketAndKey: String): String = {
