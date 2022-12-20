@@ -37,8 +37,8 @@ import org.apache.livy.Logging
 
 object CLDBUtils extends Logging {
   private val CLDB_HOSTS = sys.env("MAPR_CLDB_HOSTS")
-    .split(" ").toList
-    .filter(_.nonEmpty).map(_.split(":")(0))
+    .split(",").toList.filter(_.nonEmpty)
+    .map(_.trim).map(_.split(":")(0))
   private val TICKET_TYPE = "SERVICEWITHIMPERSONATION"
   val MAPR_CLUSTER: String = sys.env("MAPR_CLUSTER")
   val SECURE_CLUSTER: String = sys.env("SECURE_CLUSTER")
