@@ -172,7 +172,7 @@ public class RSCDriver extends BaseProtocol {
     // If we are running on Kubernetes, set RPC_SERVER_ADDRESS from "spark.driver.host" option,
     // which is set in class org.apache.spark.deploy.k8s.features.DriverServiceFeatureStep:
     // line 61: val driverHostname = s"$resolvedServiceName.${kubernetesConf.namespace()}.svc"
-    if (livyConf.isRunningOnKubernetes()) {
+    if (conf.get("spark.master").startsWith("k8s")) {
       livyConf.set(RPC_SERVER_ADDRESS, conf.get("spark.driver.host"));
     }
 
