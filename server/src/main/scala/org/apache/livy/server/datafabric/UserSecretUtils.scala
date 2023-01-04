@@ -90,7 +90,7 @@ class UserSecretUtils(val username: String, val livyConf: LivyConf) extends Logg
       val secret = buildUserSecret
       debug(s"""Creating user secret '${userSecretName}'
               | in namespace '${namespace}'
-              | for user '${username}'.""".stripMargin)
+              | for user '${username}'.""".stripMargin.replaceAll("\n", ""))
       k8sClient.secrets.inNamespace(namespace).withName(userSecretName).create(secret)
       result = true
     }
