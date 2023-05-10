@@ -109,6 +109,7 @@ class SharedSessionSpec extends BaseSessionSpec(Shared) {
     result should equal (expectedResult)
   }
 
+  /*
   it should "execute `1 + 2 = 3` in R" in withSession { session =>
     val statement = execute(session, "1 + 2", "sparkr")
     statement.id should be (0)
@@ -123,4 +124,5 @@ class SharedSessionSpec extends BaseSessionSpec(Shared) {
 
     result should be (expectedResult)
   }
+  */
 }

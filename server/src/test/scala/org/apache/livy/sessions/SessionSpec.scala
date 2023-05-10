@@ -40,6 +40,7 @@ class SessionSpec extends FunSuite with LivyBaseUnitTestSuite {
 
   test("local fs whitelist") {
     val conf = new LivyConf(false)
+    conf.hadoopConf.set("fs.defaultFS", "file:///")
     conf.set(LivyConf.LOCAL_FS_WHITELIST, "/allowed/,/also_allowed")
 
     Seq("/allowed/file", "/also_allowed/file").foreach { path =>

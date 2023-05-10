@@ -113,9 +113,9 @@
     <execution.root>${user.dir}</execution.root>
     <spark.home>${execution.root}/dev/spark</spark.home>
     <spark.bin.download.url>
-      https://archive.apache.org/dist/spark/spark-3.3.0/spark-3.3.0-bin-hadoop3.tgz
+      https://archive.apache.org/dist/spark/spark-3.3.4/spark-3.3.4-bin-hadoop3.tgz
     </spark.bin.download.url>
-    <spark.bin.name>spark-3.3.0-bin-hadoop3</spark.bin.name>
+    <spark.bin.name>spark-3.3.4-bin-hadoop3</spark.bin.name>
     <!--  used for testing, NCSARequestLog use it for access log  -->
     <livy.log.dir>${basedir}/target</livy.log.dir>
 
@@ -438,6 +438,7 @@
             <artifactId>javax.servlet</artifactId>
           </exclusion>
 
+          <!--
           <exclusion>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client-api</artifactId>
@@ -446,6 +447,7 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client-runtime</artifactId>
           </exclusion>
+          -->
         </exclusions>
       </dependency>
 
@@ -453,12 +455,14 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-hive_${scala.binary.version}</artifactId>
         <version>${spark.version}</version>
+        <!--
         <exclusions>
           <exclusion>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client-runtime</artifactId>
           </exclusion>
         </exclusions>
+        -->
       </dependency>
 
       <dependency>
@@ -765,7 +769,7 @@
             </systemProperties>
             <redirectTestOutputToFile>${test.redirectToFile}</redirectTestOutputToFile>
             <useFile>${test.redirectToFile}</useFile>
-            <argLine>${argLine} -Xmx2g</argLine>
+            <argLine>${env.MAPR_ECOSYSTEM_LOGIN_OPTS} -Djava.library.path=/opt/mapr/lib ${argLine} -Xmx2g</argLine>
             <failIfNoTests>false</failIfNoTests>
           </configuration>
         </plugin>

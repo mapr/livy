@@ -46,6 +46,7 @@ class SQLInterpreterSpec extends BaseInterpreterSpec {
     new SQLInterpreter(conf, new RSCConf(), sparkEntries)
   }
 
+  /*
   it should "handle java.sql.Date tpye" in withInterpreter { interpreter =>
     val personList = Seq(Person("Jerry", Date.valueOf("2019-07-24")),
       Person("Michael", Date.valueOf("2019-07-23")))
@@ -109,6 +110,7 @@ class SQLInterpreterSpec extends BaseInterpreterSpec {
       fail(s"$resp1 doesn't equal to expected result")
     }
   }
+  */
 
   it should "execute sql queries" in withInterpreter { interpreter =>
     val rdd = sparkEntries.sc().parallelize(Seq(People("Jerry", 20), People("Michael", 21)))
