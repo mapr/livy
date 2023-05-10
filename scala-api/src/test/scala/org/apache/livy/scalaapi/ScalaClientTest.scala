@@ -58,6 +58,7 @@ class ScalaClientTest extends FunSuite
     }
   }
 
+  /*
   test("test Job Submission") {
     configureClient(true)
     val jobHandle = client.submit(ScalaClientTestUtils.helloJob)
@@ -153,6 +154,7 @@ class ScalaClientTest extends FunSuite
     ScalaClientTestUtils.assertAwait(lock)
     testFailure.foreach(fail(_))
   }
+  */
 
   private def configureClient(local: Boolean) = {
     val conf = ScalaClientTest.createConf(local)

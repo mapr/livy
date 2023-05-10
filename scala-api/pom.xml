@@ -93,6 +93,12 @@
       <artifactId>slf4j-reload4j</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>${mapr.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
 

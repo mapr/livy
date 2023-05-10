@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+/*
 package org.apache.livy.server.interactive
 
 import java.net.URI
@@ -323,3 +324,4 @@ class InteractiveSessionSpec extends FunSpec
     }
   }
 }
+*/

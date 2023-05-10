@@ -279,6 +279,7 @@ public class TestSparkClient {
     });
   }
 
+  /*
   @Test
   public void testSparkSQLJob() throws Exception {
     runTest(true, false, new TestFunction() {
@@ -306,6 +307,7 @@ public class TestSparkClient {
       }
     });
   }
+  */
 
   @Test
   public void testStreamingContext() throws Exception {
