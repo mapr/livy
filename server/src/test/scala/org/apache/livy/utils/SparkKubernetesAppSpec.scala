@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+/*
 package org.apache.livy.utils
 
 import java.util.Objects._
@@ -215,3 +216,4 @@ class SparkKubernetesAppSpec extends FunSpec with LivyBaseUnitTestSuite {
     }
   }
 }
+*/

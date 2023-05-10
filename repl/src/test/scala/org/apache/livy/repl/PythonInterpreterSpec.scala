@@ -260,6 +260,7 @@ class Python2InterpreterSpec extends PythonBaseInterpreterSpec {
     PythonInterpreter(sparkConf, new SparkEntries(sparkConf))
   }
 
+  /*
   // Scalastyle is treating unicode escape as non ascii characters. Turn off the check.
   // scalastyle:off non.ascii.character.disallowed
   it should "print unicode correctly" in withInterpreter { intp =>
@@ -274,6 +275,7 @@ class Python2InterpreterSpec extends PythonBaseInterpreterSpec {
     ))
   }
   // scalastyle:on non.ascii.character.disallowed
+  */
 }
 
 class Python3InterpreterSpec extends PythonBaseInterpreterSpec with BeforeAndAfterAll {

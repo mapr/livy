@@ -960,7 +960,7 @@
             </systemProperties>
             <redirectTestOutputToFile>${test.redirectToFile}</redirectTestOutputToFile>
             <useFile>${test.redirectToFile}</useFile>
-            <argLine>${argLine} -Xmx2g</argLine>
+            <argLine>${env.MAPR_ECOSYSTEM_LOGIN_OPTS} -Djava.library.path=/opt/mapr/lib ${argLine} -Xmx2g</argLine>
             <failIfNoTests>false</failIfNoTests>
           </configuration>
         </plugin>

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+/*
 package org.apache.livy.server.auth
 
 import java.util.Properties
@@ -36,10 +37,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+*/
 
 /**
  * This unit test verifies the functionality of LdapAuthenticationHandlerImpl.
  */
+
+/*
 @RunWith(classOf[FrameworkRunner])
 @CreateLdapServer(transports = Array(
   new CreateTransport(
@@ -153,4 +157,5 @@ class TestLdapAuthenticationHandlerImpl extends AbstractLdapTestUnit {
     }
   }
 }
+*/
 

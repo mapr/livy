@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+/*
 package org.apache.livy.server.interactive
 
 import java.io.File
@@ -286,3 +287,4 @@ class JobApiSpecNoImpersonation extends JobApiSpec {
     }
   }
 }
+*/

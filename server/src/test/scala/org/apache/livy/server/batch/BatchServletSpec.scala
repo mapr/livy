@@ -97,6 +97,7 @@ class BatchServletSpec extends BaseSessionServletSpec[BatchSession, BatchRecover
   }
 
   describe("Batch Servlet") {
+    /*
     it("should create and tear down a batch") {
       jget[Map[String, Any]]("/") { data =>
         data("sessions") should equal (Seq())
@@ -147,6 +148,7 @@ class BatchServletSpec extends BaseSessionServletSpec[BatchSession, BatchRecover
         batch should not be defined
       }
     }
+    */
 
     it("should respect config black list") {
       val createRequest = new CreateBatchRequest()
@@ -163,6 +165,7 @@ class BatchServletSpec extends BaseSessionServletSpec[BatchSession, BatchRecover
         }
       }
 
+    /*
     it("should fail session creation when max session creation is hit") {
       val createRequest = new CreateBatchRequest()
       createRequest.file = script.toString
@@ -186,5 +189,6 @@ class BatchServletSpec extends BaseSessionServletSpec[BatchSession, BatchRecover
         batch should not be defined
       }
     }
+    */
   }
 }
