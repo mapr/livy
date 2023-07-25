@@ -37,6 +37,7 @@ class CreateInteractiveRequest {
   var heartbeatTimeoutInSecond: Int = 0
   var ttl: Option[String] = None
   var idleTimeout: Option[String] = None
+  var enableMetrics: Option[Boolean] = None
 
   override def toString: String = {
     s"[kind: $kind, proxyUser: $proxyUser, " +
@@ -54,6 +55,7 @@ class CreateInteractiveRequest {
       (if (conf.nonEmpty) s"conf: ${conf.mkString(",")}, " else "") +
       s"heartbeatTimeoutInSecond: $heartbeatTimeoutInSecond, " +
       (if (ttl.isDefined) s"ttl: ${ttl.get}, " else "") +
+      (if (enableMetrics.isDefined) s"enableMetrics: ${enableMetrics.get}, " else "") +
       (if (idleTimeout.isDefined) s"idleTimeout: ${idleTimeout.get}]" else "]")
   }
 }
