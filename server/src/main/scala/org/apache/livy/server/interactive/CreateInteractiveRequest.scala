@@ -35,6 +35,7 @@ class CreateInteractiveRequest {
   var name: Option[String] = None
   var conf: Map[String, String] = Map()
   var heartbeatTimeoutInSecond: Int = 0
+  var enableMetrics: Option[Boolean] = None
 
   override def toString: String = {
     s"[kind: $kind, proxyUser: $proxyUser, " +
@@ -50,6 +51,8 @@ class CreateInteractiveRequest {
       (if (queue.isDefined) s"queue: ${queue.get}, " else "") +
       (if (name.isDefined) s"name: ${name.get}, " else "") +
       (if (conf.nonEmpty) s"conf: ${conf.mkString(",")}, " else "") +
-      s"heartbeatTimeoutInSecond: $heartbeatTimeoutInSecond]"
+      s"heartbeatTimeoutInSecond: $heartbeatTimeoutInSecond" +
+      (if (enableMetrics.isDefined) s"enableMetrics: ${enableMetrics.get}" else "") +
+      "]"
   }
 }

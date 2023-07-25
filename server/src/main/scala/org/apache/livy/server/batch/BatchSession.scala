@@ -87,13 +87,32 @@ object BatchSession extends Logging {
       request.queue.foreach(builder.queue)
       request.name.foreach(builder.name)
 
+      request.enableMetrics match {
+        case Some(true) =>
+          builder.conf("spark.metrics.conf.driver.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
+          builder.conf("spark.metrics.conf.executor.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
+          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.class", "org.apache.spark.metrics.sink.PrometheusServlet")
+          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.path", "/metrics")
+        case _ => None
+      }
+
       if (livyConf.isRunningOnKubernetes) {
-        val k8sOpts: Map[String, Option[String]] = Map(
+        var k8sOpts: Map[String, Option[String]] = Map(
           "spark.kubernetes.driver.request.cores" -> request.driverCores.map(_.toString),
           "spark.kubernetes.driver.limit.cores" -> request.driverCores.map(_.toString),
           "spark.kubernetes.executor.request.cores" -> request.executorCores.map(_.toString),
           "spark.kubernetes.executor.limit.cores" -> request.executorCores.map(_.toString)
         )
+
+        request.enableMetrics match {
+          case Some(true) =>
+            k8sOpts ++= Map(
+              "spark.kubernetes.driver.annotation.prometheus.io/scrape" -> Option("true"),
+              "spark.kubernetes.driver.annotation.prometheus.io/port" -> Option("4040"),
+              "spark.kubernetes.driver.annotation.prometheus.io/path" -> Option("/metrics")
+            )
+          case _ => None
+        }
 
         k8sOpts.foreach { case (key, opt) =>
           opt.foreach {
