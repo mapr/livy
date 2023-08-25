@@ -24,6 +24,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.ClosureSerializer;
+import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import org.apache.livy.annotations.Private;
@@ -45,12 +46,13 @@ public class Serializer {
       @Override
       protected Kryo initialValue() {
         Kryo kryo = new Kryo();
+        kryo.setRegistrationRequired(false);
         int count = 0;
         for (Class<?> klass : klasses) {
           kryo.register(klass, REG_ID_BASE + count);
           count++;
         }
-        kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(
+        kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(
           new StdInstantiatorStrategy()));
         kryo.register(java.lang.invoke.SerializedLambda.class);
         kryo.register(ClosureSerializer.Closure.class, new ClosureSerializer());
