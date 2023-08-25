@@ -93,7 +93,7 @@
     <json4s.version>3.7.0-M11</json4s.version>
     <junit.version>4.11</junit.version>
     <libthrift.version>0.13.0</libthrift.version>
-    <kryo.version>4.0.2</kryo.version>
+    <kryo.version>5.5.0</kryo.version>
     <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
     <metrics.version>4.2.7</metrics.version>
     <mockito.version>1.9.5</mockito.version>
