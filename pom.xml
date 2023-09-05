@@ -209,8 +209,8 @@
       </snapshots>
     </repository>
     <repository>
-      <id>repository.mapr.com</id>
-      <url>http://repository.mapr.com/maven/</url>
+      <id>repository.mapr.hpe.com</id>
+      <url>https://repository.mapr.hpe.com/maven/</url>
       <releases>
         <enabled>true</enabled>
       </releases>
