@@ -31,10 +31,11 @@
 # - LIVY_MAX_LOG_FILES Max number of log file to keep in the log directory. (Default: 5.)
 # - LIVY_NICENESS   Niceness of the Livy server process when running in the background. (Default: 0.)
 
-MAPR_HOME="${MAPR_HOME:-/opt/mapr}"
+MAPR_HOME=${MAPR_HOME:-"/opt/mapr"}
 . "${MAPR_HOME}/conf/env.sh"
 
 export LIVY_SERVER_JAVA_OPTS="${MAPR_ECOSYSTEM_SERVER_LOGIN_OPTS} -Djava.library.path=${MAPR_HOME}/lib"
+export LIVY_SERVER_JAVA_OPTS="${LIVY_SERVER_JAVA_OPTS} --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED"
 
 export HADOOP_VERSION=$(cat "${MAPR_HOME}/hadoop/hadoopversion")
 export HADOOP_HOME="${MAPR_HOME}/hadoop/hadoop-${HADOOP_VERSION}"
