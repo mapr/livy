@@ -89,10 +89,14 @@ object BatchSession extends Logging {
 
       request.enableMetrics match {
         case Some(true) =>
-          builder.conf("spark.metrics.conf.driver.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
-          builder.conf("spark.metrics.conf.executor.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
-          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.class", "org.apache.spark.metrics.sink.PrometheusServlet")
-          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.path", "/metrics")
+          builder.conf("spark.metrics.conf.driver.source.jvm.class",
+            "org.apache.spark.metrics.source.JvmSource")
+          builder.conf("spark.metrics.conf.executor.source.jvm.class",
+            "org.apache.spark.metrics.source.JvmSource")
+          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.class",
+            "org.apache.spark.metrics.sink.PrometheusServlet")
+          builder.conf("spark.metrics.conf.*.sink.prometheusServlet.path",
+            "/metrics")
         case _ => None
       }
 

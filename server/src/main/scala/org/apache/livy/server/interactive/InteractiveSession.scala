@@ -101,10 +101,14 @@ object InteractiveSession extends Logging {
 
       request.enableMetrics match {
         case Some(true) =>
-          builderProperties.put("spark.metrics.conf.driver.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
-          builderProperties.put("spark.metrics.conf.executor.source.jvm.class", "org.apache.spark.metrics.source.JvmSource")
-          builderProperties.put("spark.metrics.conf.*.sink.prometheusServlet.class", "org.apache.spark.metrics.sink.PrometheusServlet")
-          builderProperties.put("spark.metrics.conf.*.sink.prometheusServlet.path", "/metrics")
+          builderProperties.put("spark.metrics.conf.driver.source.jvm.class",
+            "org.apache.spark.metrics.source.JvmSource")
+          builderProperties.put("spark.metrics.conf.executor.source.jvm.class",
+            "org.apache.spark.metrics.source.JvmSource")
+          builderProperties.put("spark.metrics.conf.*.sink.prometheusServlet.class",
+            "org.apache.spark.metrics.sink.PrometheusServlet")
+          builderProperties.put("spark.metrics.conf.*.sink.prometheusServlet.path",
+            "/metrics")
         case _ => None
       }
 
