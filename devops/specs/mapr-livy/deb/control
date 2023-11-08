@@ -1,0 +1,11 @@
+Package: mapr-livy
+Version: __RELEASE_VERSION__
+Section: base
+Priority: optional
+Architecture: all
+Replaces:  mapr-hue-livy
+Depends: mapr-spark (>= 2.0.0), mapr-client, mapr-hadoop-client
+Maintainer: Hewlett Packard Enterprise <ezmeral_software_support@hpe.com>
+Description: Ezmeral Ecosystem Pack - Livy package
+  Tag: __RELEASE_BRANCH__
+  Commit: __GIT_COMMIT__
