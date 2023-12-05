@@ -149,7 +149,13 @@ object InteractiveSession extends Logging {
         }
 
         if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
-          val userSecretUtils = new UserSecretUtils(owner, livyConf)
+          // we're sure that 'spark.kubernetes.namespace' is set by we get here,
+          // so it's safe just to get it from conf
+          val userSecretUtils = new UserSecretUtils(
+            owner,
+            conf("spark.kubernetes.namespace"),
+            livyConf
+          )
           val secretCreated = userSecretUtils.ensureUserSecret
           val secretName = userSecretUtils.userSecretName
           if (secretCreated) {

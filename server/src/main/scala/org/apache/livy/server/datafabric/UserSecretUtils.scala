@@ -18,43 +18,24 @@
 package org.apache.livy.server.datafabric
 
 import com.mapr.security.UnixUserGroupHelper
-import io.fabric8.kubernetes.api.model.{OwnerReferenceBuilder, Secret, SecretBuilder}
+import io.fabric8.kubernetes.api.model.{Secret, SecretBuilder}
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import org.apache.commons.codec.binary.Base64
 
 import org.apache.livy.LivyConf
 import org.apache.livy.Logging
 
-object UserSecretUtils extends Logging {
-  private val INSTALLATION_NAME = sys.env("CHART_RELEASE_NAME")
-}
-
-class UserSecretUtils(val username: String, val livyConf: LivyConf) extends Logging {
-  private val k8sClient = new DefaultKubernetesClient
-  private val namespace = k8sClient.getNamespace
+class UserSecretUtils(val username: String,
+                       val namespace: String,
+                       val livyConf: LivyConf) extends Logging {
+  private val k8sClient = (new DefaultKubernetesClient).inNamespace(namespace)
   private val secretNamePattern = livyConf.get(LivyConf.KUBERNETES_USER_SECRET_PATTERN)
-  val userSecretName = String.format(secretNamePattern, username)
+  val userSecretName: String = String.format(secretNamePattern, username)
 
   private def buildUserSecret: Secret = {
     val secretBuilder = new SecretBuilder()
       .withNewMetadata
         .withName(userSecretName)
-      .endMetadata
-
-    // TODO: allow to configure which resource would be used as a secret owner.
-    // We need to have fabric8io kubernetes-client of version 5.7+
-    // to be able to use ResourceDefinitionContext to do this easily.
-    val livyStatefulSet = k8sClient.apps.statefulSets
-      .inNamespace(namespace)
-      .withName(UserSecretUtils.INSTALLATION_NAME).get
-
-    secretBuilder.editMetadata
-      .withOwnerReferences(new OwnerReferenceBuilder()
-        .withApiVersion(livyStatefulSet.getApiVersion)
-        .withKind(livyStatefulSet.getKind)
-        .withName(livyStatefulSet.getMetadata.getName)
-        .withUid(livyStatefulSet.getMetadata.getUid)
-        .build)
       .endMetadata
 
     val ugHelper = new UnixUserGroupHelper
@@ -81,7 +62,7 @@ class UserSecretUtils(val username: String, val livyConf: LivyConf) extends Logg
   }
 
   private def secretExist: Boolean = {
-    k8sClient.secrets.inNamespace(namespace).withName(userSecretName).get != null
+    k8sClient.secrets.withName(userSecretName).get != null
   }
 
   def ensureUserSecret: Boolean = {
