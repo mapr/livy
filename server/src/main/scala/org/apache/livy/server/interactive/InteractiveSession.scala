@@ -39,7 +39,7 @@ import org.apache.livy.client.common.HttpMessages._
 import org.apache.livy.rsc.{PingJob, RSCClient, RSCConf}
 import org.apache.livy.rsc.driver.Statement
 import org.apache.livy.server.AccessManager
-import org.apache.livy.server.datafabric.UserSecretUtils
+import org.apache.livy.server.datafabric.{HistoryServerUtils, UserSecretUtils}
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions._
 import org.apache.livy.sessions.Session._
@@ -143,6 +143,9 @@ object InteractiveSession extends Logging {
             )
           case _ => None
         }
+
+        val historyServerUtils = new HistoryServerUtils(conf("spark.kubernetes.namespace"))
+        k8sOpts ++= historyServerUtils.generateHistoryServerConfigs()
 
         k8sOpts.foreach { case (key, opt) =>
           opt.foreach { value => builderProperties.getOrElseUpdate(key, value) }

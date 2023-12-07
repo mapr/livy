@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 import org.apache.livy.{LivyConf, Logging, Utils}
 import org.apache.livy.server.AccessManager
-import org.apache.livy.server.datafabric.UserSecretUtils
+import org.apache.livy.server.datafabric.{HistoryServerUtils, UserSecretUtils}
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions.{FinishedSessionState, Session, SessionState}
 import org.apache.livy.sessions.Session._
@@ -117,6 +117,9 @@ object BatchSession extends Logging {
             )
           case _ => None
         }
+
+        val historyServerUtils = new HistoryServerUtils(conf("spark.kubernetes.namespace"))
+        k8sOpts ++= historyServerUtils.generateHistoryServerConfigs()
 
         k8sOpts.foreach { case (key, opt) =>
           opt.foreach {
