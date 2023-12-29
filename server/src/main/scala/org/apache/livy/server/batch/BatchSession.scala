@@ -67,12 +67,27 @@ object BatchSession extends Logging {
     val impersonatedUser = accessManager.checkImpersonation(proxyUser, owner)
 
     def createSparkApp(s: BatchSession): SparkApp = {
-      val conf = SparkApp.prepareSparkConf(
+      var conf = SparkApp.prepareSparkConf(
         appTag,
         livyConf,
         prepareConf(
           request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf))
       require(request.file != null, "File is required.")
+
+      Option(livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.namespace", String.format(pattern, owner)))
+      })
+      Option(livyConf.get(LivyConf.KUBERNETES_DRIVER_SA_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
+            String.format(pattern, owner)))
+      })
+      Option(livyConf.get(LivyConf.KUBERNETES_EXECUTOR_SA_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
+            String.format(pattern, owner)))
+      })
 
       val builder = new SparkProcessBuilder(livyConf)
       builder.conf(conf)
