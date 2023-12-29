@@ -289,6 +289,15 @@ object LivyConf {
   val KUBERNETES_USER_SECRET_PATTERN =
     Entry("livy.server.kubernetes.userSecretPattern", "livy-user-secret-%s")
 
+  // String pattern to set session Namespace and ServiceAccount based on session owner.
+  // Use '%s' placeholder for the username part to be replaced by session owner.
+  val KUBERNETES_NAMESPACE_USER_PATTERN =
+    Entry("livy.server.kubernetes.namespacePattern", "")
+  val KUBERNETES_DRIVER_SA_USER_PATTERN =
+    Entry("livy.server.kubernetes.driverSaPattern", "")
+  val KUBERNETES_EXECUTOR_SA_USER_PATTERN =
+    Entry("livy.server.kubernetes.executorSaPattern", "")
+
   // How long to check livy session leakage.
   val KUBERNETES_APP_LEAKAGE_CHECK_TIMEOUT =
     Entry("livy.server.kubernetes.app-leakage.check-timeout", "600s")

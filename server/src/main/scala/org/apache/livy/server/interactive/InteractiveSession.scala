@@ -94,8 +94,23 @@ object InteractiveSession extends Logging {
     val impersonatedUser = accessManager.checkImpersonation(proxyUser, owner)
 
     val client = mockClient.orElse {
-      val conf = SparkApp.prepareSparkConf(appTag, livyConf, prepareConf(
+      var conf = SparkApp.prepareSparkConf(appTag, livyConf, prepareConf(
         request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf))
+
+      Option(livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.namespace", String.format(pattern, owner)))
+      })
+      Option(livyConf.get(LivyConf.KUBERNETES_DRIVER_SA_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
+            String.format(pattern, owner)))
+      })
+      Option(livyConf.get(LivyConf.KUBERNETES_EXECUTOR_SA_USER_PATTERN)).filter(_.nonEmpty).map(
+        pattern => {
+          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
+            String.format(pattern, owner)))
+      })
 
       val builderProperties = prepareBuilderProp(conf, request.kind, livyConf)
 
