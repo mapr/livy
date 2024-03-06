@@ -24,7 +24,7 @@ import org.apache.livy.Logging
 class HistoryServerUtils(namespace: String) extends Logging {
   private val k8sClient = new DefaultKubernetesClient().inNamespace(namespace)
 
-  def generateHistoryServerConfigs(): Map[String, Option[String]] = {
+  def generateHistoryServerConfigs(): Map[String, String] = {
     val sparkHSCM = k8sClient.configMaps().withName("sparkhs-cm").get()
     if (sparkHSCM == null) {
       debug(s"HS settings were not found in target namespace '$namespace'. " +
@@ -37,22 +37,22 @@ class HistoryServerUtils(namespace: String) extends Logging {
       case "maprfs" =>
         debug("Using maprfs HS storage type")
         Map(
-          "spark.eventLog.enabled" -> Option("true"),
-          "spark.eventLog.dir" -> Option(s"maprfs:///apps/spark/$namespace")
+          "spark.eventLog.enabled" -> "true",
+          "spark.eventLog.dir" -> s"maprfs:///apps/spark/$namespace"
         )
       case "pvc" =>
         val pvcName = sparkHSCM.getData.get("pvcName")
         val mountPath = "/var/log/sparkhs-eventlog-storage"
         debug(s"Using PVC '$pvcName' as HS storage")
         Map(
-          "spark.eventLog.enabled" -> Option("true"),
+          "spark.eventLog.enabled" -> "true",
           "spark.kubernetes.driver.volumes.persistentVolumeClaim." +
-            "sparkhs-eventlog-storage.options.claimName" -> Option(pvcName),
+            "sparkhs-eventlog-storage.options.claimName" -> pvcName,
           "spark.kubernetes.driver.volumes.persistentVolumeClaim." +
-            "sparkhs-eventlog-storage.mount.path" -> Option(mountPath),
+            "sparkhs-eventlog-storage.mount.path" -> mountPath,
           "spark.kubernetes.driver.volumes.persistentVolumeClaim." +
-            "sparkhs-eventlog-storage.mount.readOnly" -> Option("false"),
-          "spark.eventLog.dir" -> Option(mountPath)
+            "sparkhs-eventlog-storage.mount.readOnly" -> "false",
+          "spark.eventLog.dir" -> mountPath
         )
       case _ =>
         warn(s"Unknown storage type $hsStorageType. No HS settings will be added")

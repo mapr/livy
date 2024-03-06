@@ -25,12 +25,11 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.livy.LivyConf
 import org.apache.livy.Logging
 
-class UserSecretUtils(val username: String,
-                       val namespace: String,
-                       val livyConf: LivyConf) extends Logging {
+class UserSecretUtils(var userInfo: K8SUserInfo,
+                      val namespace: String,
+                      val livyConf: LivyConf) extends Logging {
   private val k8sClient = (new DefaultKubernetesClient).inNamespace(namespace)
-  private val secretNamePattern = livyConf.get(LivyConf.KUBERNETES_USER_SECRET_PATTERN)
-  val userSecretName: String = String.format(secretNamePattern, username)
+  val userSecretName: String = userInfo.userSecretName
 
   private def buildUserSecret: Secret = {
     val secretBuilder = new SecretBuilder()
@@ -39,8 +38,8 @@ class UserSecretUtils(val username: String,
       .endMetadata
 
     val ugHelper = new UnixUserGroupHelper
-    val uid = ugHelper.getUserId(username)
-    val gid = ugHelper.getGroups(username)(0)
+    val uid = ugHelper.getUserId(userInfo.username)
+    val gid = ugHelper.getGroups(userInfo.username)(0)
     val groupName = ugHelper.getGroupname(gid)
     val secureCluster = CLDBUtils.SECURE_CLUSTER
 
@@ -49,12 +48,12 @@ class UserSecretUtils(val username: String,
     secretBuilder
       .addToData("MAPR_SPARK_UID", b64.encodeAsString(uid.toString.getBytes))
       .addToData("MAPR_SPARK_GID", b64.encodeAsString(gid.toString.getBytes))
-      .addToData("MAPR_SPARK_USER", b64.encodeAsString(username.getBytes))
+      .addToData("MAPR_SPARK_USER", b64.encodeAsString(userInfo.username.getBytes))
       .addToData("MAPR_SPARK_GROUP", b64.encodeAsString(groupName.getBytes))
       .addToData("SECURE_CLUSTER", b64.encodeAsString(secureCluster.getBytes))
 
     if (secureCluster == "true") {
-      val ticketFile = CLDBUtils.genUserTicketFile(username)
+      val ticketFile = CLDBUtils.genUserTicketFile(userInfo.username)
       secretBuilder.addToData("CONTAINER_TICKET", b64.encodeAsString(ticketFile.getBytes))
     }
 
@@ -65,16 +64,16 @@ class UserSecretUtils(val username: String,
     k8sClient.secrets.withName(userSecretName).get != null
   }
 
-  def ensureUserSecret: Boolean = {
-    var result = false
+  def ensureUserSecret(): Unit = {
     if (!secretExist) {
       val secret = buildUserSecret
       debug(s"""Creating user secret '${userSecretName}'
               | in namespace '${namespace}'
-              | for user '${username}'.""".stripMargin.replaceAll("\n", ""))
+              | for user '${userInfo.username}'.""".stripMargin.replaceAll("\n", ""))
       k8sClient.secrets.inNamespace(namespace).withName(userSecretName).create(secret)
-      result = true
+      info(s"Secret '${userSecretName}' for user '${userInfo.username}' has been created.")
+    } else {
+      info(s"Secret '${userSecretName}' for user '${userInfo.username}' already exists.")
     }
-    result
   }
 }

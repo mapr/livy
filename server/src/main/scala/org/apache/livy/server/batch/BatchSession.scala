@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 import org.apache.livy.{LivyConf, Logging, Utils}
 import org.apache.livy.server.AccessManager
-import org.apache.livy.server.datafabric.{HistoryServerUtils, UserSecretUtils}
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions.{FinishedSessionState, Session, SessionState}
 import org.apache.livy.sessions.Session._
@@ -67,27 +66,13 @@ object BatchSession extends Logging {
     val impersonatedUser = accessManager.checkImpersonation(proxyUser, owner)
 
     def createSparkApp(s: BatchSession): SparkApp = {
-      var conf = SparkApp.prepareSparkConf(
+      val conf = SparkApp.prepareSparkConf(
         appTag,
         livyConf,
         prepareConf(
-          request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf))
+          request.conf, request.jars, request.files, request.archives, request.pyFiles, livyConf),
+        owner)
       require(request.file != null, "File is required.")
-
-      Option(livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)).filter(_.nonEmpty).map(
-        pattern => {
-          conf ++= Map(("spark.kubernetes.namespace", String.format(pattern, owner)))
-      })
-      Option(livyConf.get(LivyConf.KUBERNETES_DRIVER_SA_USER_PATTERN)).filter(_.nonEmpty).map(
-        pattern => {
-          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
-            String.format(pattern, owner)))
-      })
-      Option(livyConf.get(LivyConf.KUBERNETES_EXECUTOR_SA_USER_PATTERN)).filter(_.nonEmpty).map(
-        pattern => {
-          conf ++= Map(("spark.kubernetes.authenticate.driver.serviceAccountName",
-            String.format(pattern, owner)))
-      })
 
       val builder = new SparkProcessBuilder(livyConf)
       builder.conf(conf)
@@ -133,9 +118,6 @@ object BatchSession extends Logging {
           case _ => None
         }
 
-        val historyServerUtils = new HistoryServerUtils(conf("spark.kubernetes.namespace"))
-        k8sOpts ++= historyServerUtils.generateHistoryServerConfigs()
-
         k8sOpts.foreach { case (key, opt) =>
           opt.foreach {
             value => {
@@ -144,24 +126,6 @@ object BatchSession extends Logging {
               }
             }
           }
-        }
-
-        if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
-          // we're sure that 'spark.kubernetes.namespace' is set by we get here,
-          // so it's safe just to get it from conf
-          val userSecretUtils = new UserSecretUtils(
-            owner,
-            conf("spark.kubernetes.namespace"),
-            livyConf
-          )
-          val secretCreated = userSecretUtils.ensureUserSecret
-          val secretName = userSecretUtils.userSecretName
-          if (secretCreated) {
-            info(s"Secret '${secretName}' for user '${owner}' has been created.")
-          } else {
-            info(s"Secret '${secretName}' for user '${owner}' already exists.")
-          }
-          builder.conf("spark.mapr.user.secret", secretName)
         }
       }
 
