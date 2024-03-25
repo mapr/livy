@@ -115,6 +115,7 @@ object SparkApp {
 
       if (livyConf.getBoolean(LivyConf.KUBERNETES_CREATE_USER_SECRET)) {
         val userSecretUtils = new UserSecretUtils(userInfo, targetNamespace, livyConf)
+        userSecretUtils.ensureUserSecret()
         result ++= Map("spark.mapr.user.secret" -> userSecretUtils.userSecretName)
       }
 
