@@ -47,10 +47,11 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
         groupName = Option(ugHelper.getGroupname(gid.get))
       }
       case "uaconfigmap" => {
-        val userInfoCM = k8sClient.configMaps().withName("user-info-cm").get()
-        uid = Option(userInfoCM.getData.get("uid").toInt)
-        gid = Option(userInfoCM.getData.get("gid").toInt)
-        groupName = Option(userInfo.username)
+        val userInfoCM = k8sClient.configMaps().withName("user-info-cm").get
+        val userInfoData = userInfoCM.getData
+        uid = Option(userInfoData.get("uid").toInt)
+        gid = Option(userInfoData.get("gid").toInt)
+        groupName = Option(userInfoData.getOrDefault("group", userInfo.username))
       }
       case _ => {
         throw new ServletException(
