@@ -20,6 +20,7 @@ package org.apache.livy.server.datafabric
 import com.mapr.security.UnixUserGroupHelper
 import io.fabric8.kubernetes.api.model.{Secret, SecretBuilder}
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import javax.servlet.ServletException
 import org.apache.commons.codec.binary.Base64
 
 import org.apache.livy.LivyConf
@@ -32,24 +33,45 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
   val userSecretName: String = userInfo.userSecretName
 
   private def buildUserSecret: Secret = {
+    val userLookupService = livyConf.get(LivyConf.KUBERNETES_USER_LOOKUP_SERVICE)
+
+    var uid: Option[Int] = null
+    var gid: Option[Int] = null
+    var groupName: Option[String] = null
+
+    userLookupService match {
+      case "nativesssd" => {
+        val ugHelper = new UnixUserGroupHelper
+        uid = Option(ugHelper.getUserId(userInfo.username))
+        gid = Option(ugHelper.getGroups(userInfo.username)(0))
+        groupName = Option(ugHelper.getGroupname(gid.get))
+      }
+      case "uaconfigmap" => {
+        val userInfoCM = k8sClient.configMaps().withName("user-info-cm").get()
+        uid = Option(userInfoCM.getData.get("uid").toInt)
+        gid = Option(userInfoCM.getData.get("gid").toInt)
+        groupName = Option(userInfo.username)
+      }
+      case _ => {
+        throw new ServletException(
+          s"Invalid value for ${LivyConf.KUBERNETES_USER_LOOKUP_SERVICE}: ${userLookupService}")
+      }
+    }
+
+    val secureCluster = CLDBUtils.SECURE_CLUSTER
+
     val secretBuilder = new SecretBuilder()
       .withNewMetadata
-        .withName(userSecretName)
+      .withName(userSecretName)
       .endMetadata
-
-    val ugHelper = new UnixUserGroupHelper
-    val uid = ugHelper.getUserId(userInfo.username)
-    val gid = ugHelper.getGroups(userInfo.username)(0)
-    val groupName = ugHelper.getGroupname(gid)
-    val secureCluster = CLDBUtils.SECURE_CLUSTER
 
     val b64 = new Base64
 
     secretBuilder
-      .addToData("MAPR_SPARK_UID", b64.encodeAsString(uid.toString.getBytes))
-      .addToData("MAPR_SPARK_GID", b64.encodeAsString(gid.toString.getBytes))
+      .addToData("MAPR_SPARK_UID", b64.encodeAsString(uid.get.toString.getBytes))
+      .addToData("MAPR_SPARK_GID", b64.encodeAsString(gid.get.toString.getBytes))
       .addToData("MAPR_SPARK_USER", b64.encodeAsString(userInfo.username.getBytes))
-      .addToData("MAPR_SPARK_GROUP", b64.encodeAsString(groupName.getBytes))
+      .addToData("MAPR_SPARK_GROUP", b64.encodeAsString(groupName.get.getBytes))
       .addToData("SECURE_CLUSTER", b64.encodeAsString(secureCluster.getBytes))
 
     if (secureCluster == "true") {

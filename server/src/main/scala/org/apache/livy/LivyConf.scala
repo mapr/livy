@@ -284,6 +284,12 @@ object LivyConf {
   // Whether Livy Server should create DataFabric secret for users on session creation.
   val KUBERNETES_CREATE_USER_SECRET = Entry("livy.server.kubernetes.createUserSecret", false)
 
+  // Type of lookup user mechanism implementation. Acceptable values are:
+  // 'nativesssd' - native integration via platform sssd configuration,
+  // 'uaconfigmap' - read user info from a configmap in user namespace.
+  val KUBERNETES_USER_LOOKUP_SERVICE = Entry("livy.server.kubernetes.userLookupService",
+    "nativesssd")
+
   // String pattern to name user secret which would be created.
   // Use '%s' placeholder for the username part to be replaced by session owner.
   val KUBERNETES_USER_SECRET_PATTERN =
