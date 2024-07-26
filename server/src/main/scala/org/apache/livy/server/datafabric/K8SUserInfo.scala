@@ -18,18 +18,20 @@
 package org.apache.livy.server.datafabric
 
 import io.fabric8.kubernetes.api.model.ListOptions
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
+import io.fabric8.kubernetes.client.KubernetesClientBuilder
+import io.fabric8.kubernetes.client.KubernetesClientException
 
 import org.apache.livy.{LivyConf, Logging}
 
+
 case class K8SUserInfo(username: String,
-                       defaultNamespace: Option[String],
+                       namespace: Option[String],
                        userSecretName: String,
                        driverSA: Option[String],
                        executorSA: Option[String])
 
 object K8SUserInfo extends Logging {
-  private lazy val allNsK8SClient = new DefaultKubernetesClient().inAnyNamespace()
+  private lazy val client = new KubernetesClientBuilder().build()
 
   def apply(username: String, livyConf: LivyConf): K8SUserInfo = {
     if (!livyConf.isRunningOnKubernetes()) {
@@ -42,38 +44,46 @@ object K8SUserInfo extends Logging {
     val driverSA = driverSAName(formattedUsername, livyConf)
     val executorSA = executorSAName(formattedUsername, livyConf)
 
-    info(s"UserInfo for $username: namespace = ${namespace.get}; secret = $secret; " +
-      s"driverSA: ${driverSA.get}; executorSA: ${executorSA.get}")
+    info(s"UserInfo for $username: namespace = ${namespace.getOrElse("null")}; secret = $secret; " +
+      s"driverSA: ${driverSA.getOrElse("null")}; executorSA: ${executorSA.getOrElse("null")}")
     new K8SUserInfo(username, namespace, secret, driverSA, executorSA)
   }
 
   private def getUserNamespace(username: String, livyConf: LivyConf): Option[String] = {
     val selector = "hpe-ezua/username=" + username
 
-    val listOptions = new ListOptions()
-    listOptions.setLabelSelector(selector)
-    val namespaces = allNsK8SClient.namespaces().list(listOptions).getItems
+    try {
+      val listOptions = new ListOptions()
+      listOptions.setLabelSelector(selector)
 
-    val ns = namespaces.size() match {
-      case 0 =>
-        warn(s"Could not find user namespace by selector '$selector'. " +
-          s"Trying to build namespace basing on ${LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN.key}.")
-        val pattern = livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)
-        if (!pattern.isBlank) {
-          String.format(pattern, username)
-        } else {
-          warn("Namespace pattern is not set, falling back to value from sparkConf")
-          null
-        }
-      case 1 =>
-        namespaces.get(0).getMetadata.getName
-      case _ =>
-        warn(s"Found multiple user namespaces by selector '$selector', " +
-          s"falling back to value from sparkConf")
-        null
+      val namespaces = client.namespaces().list(listOptions).getItems
+
+      namespaces.size() match {
+        case 0 =>
+          warn(s"Could not find user namespace by selector '$selector'.")
+        case 1 =>
+          val ns = namespaces.get(0).getMetadata.getName
+          info(s"Found namespace by '$selector' selector: $ns.")
+          return Option(ns)
+        case _ =>
+          warn(s"Found multiple user namespaces by selector '$selector'.")
+      }
+    } catch {
+      case _: KubernetesClientException =>
+        warn("Failed to lookup Kubernetes namespaces.")
     }
 
-    Option(ns)
+    val pattern = livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)
+    if (!pattern.isBlank) {
+      val ns = String.format(pattern, username)
+      info(s"Setting namespace based on '${LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN.key}' " +
+        s"value: $ns.")
+      return Option(ns)
+    }
+
+    warn(s"Neither namespace with '$selector' label nor namespace pattern option is available, " +
+      "falling back to value from sparkConf.")
+    Option(null)
   }
 
   private def secretName(realUsername: String,

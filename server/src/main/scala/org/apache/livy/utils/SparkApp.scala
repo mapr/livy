@@ -79,8 +79,8 @@ object SparkApp {
       val userInfo = K8SUserInfo(owner, livyConf)
       // We don't allow to submit applications to the namespaces different from the configured
       val kubernetesNamespaces = livyConf.getKubernetesNamespaces()
-      val targetNamespace = sparkConf.getOrElse("spark.kubernetes.namespace",
-        userInfo.defaultNamespace.getOrElse(
+      val targetNamespace = userInfo.namespace.getOrElse(
+        sparkConf.getOrElse("spark.kubernetes.namespace",
           SparkKubernetesApp.kubernetesClient.getDefaultNamespace)
       )
       if (kubernetesNamespaces.nonEmpty && !kubernetesNamespaces.contains(targetNamespace)) {
