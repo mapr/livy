@@ -323,6 +323,22 @@ object LivyConf {
   // Custom headers file location parameter
   val CUSTOM_HEADERS_FILE = Entry("livy.server.headers-file", null)
 
+  // Resource limit for number of cores for driver that can be specified by a user
+  val SESSION_RESOURCE_LIMITS_DRIVER_CORES =
+    Entry("livy.server.session.resource-limits.driver-cores", 0)
+  // Resource limit for memory for driver
+  val SESSION_RESOURCE_LIMITS_DRIVER_MEMORY =
+    Entry("livy.server.session.resource-limits.driver-memory", "0")
+  // Resource limit to enforce max number of executors
+  val SESSION_RESOURCE_LIMITS_EXECUTOR_INSTANCES =
+    Entry("livy.server.session.resource-limits.executor-instances", 0)
+  // Resource limit for number of cores per executor
+  val SESSION_RESOURCE_LIMITS_EXECUTOR_CORES =
+    Entry("livy.server.session.resource-limits.executor-cores", 0)
+  // Resource limit for memory per executor
+  val SESSION_RESOURCE_LIMITS_EXECUTOR_MEMORY =
+    Entry("livy.server.session.resource-limits.executor-memory", "0")
+
   val SPARK_MASTER = "spark.master"
   val SPARK_DEPLOY_MODE = "spark.submit.deployMode"
   val SPARK_JARS = "spark.jars"

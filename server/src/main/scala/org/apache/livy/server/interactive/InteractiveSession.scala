@@ -39,6 +39,7 @@ import org.apache.livy.client.common.HttpMessages._
 import org.apache.livy.rsc.{PingJob, RSCClient, RSCConf}
 import org.apache.livy.rsc.driver.Statement
 import org.apache.livy.server.AccessManager
+import org.apache.livy.server.datafabric.LimitsValidator
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions._
 import org.apache.livy.sessions.Session._
@@ -91,6 +92,15 @@ object InteractiveSession extends Logging {
       mockClient: Option[RSCClient] = None): InteractiveSession = {
     val appTag = s"livy-session-$id-${Random.alphanumeric.take(8).mkString}"
     val impersonatedUser = accessManager.checkImpersonation(proxyUser, owner)
+
+    LimitsValidator.validateEverything(
+      livyConf,
+      request.driverCores,
+      request.driverMemory,
+      request.numExecutors,
+      request.executorCores,
+      request.executorMemory,
+      request.conf)
 
     val client = mockClient.orElse {
       val conf = SparkApp.prepareSparkConf(appTag, livyConf, prepareConf(
