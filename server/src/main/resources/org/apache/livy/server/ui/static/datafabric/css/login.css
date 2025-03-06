@@ -1,0 +1,80 @@
+body {
+  font-family: "Quicksand", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  background-color: #263040;
+
+  --hpe-green: #04aa6d;
+}
+
+@font-face {
+  font-family: "hpeSemiFont";
+  src: url(/static/datafabric/font/MetricHPE-Web-Semibold.woff);
+}
+
+@font-face {
+  font-family: "hpeRegularFont";
+  src: url(/static/datafabric/font/MetricHPE-Web-Regular.woff);
+}
+
+@font-face {
+  font-family: "hpeBoldFont";
+  src: url(/static/datafabric/font/MetricHPE-Web-Bold.woff);
+}
+
+.brand-name {
+  display: flex;
+  font-family: "hpeBoldFont";
+  font-size: 24px;
+  user-select: none;
+  padding-top: 11px;
+  padding-left: 0;
+  color: #ffffff;
+}
+
+.product-name {
+  display: flex;
+  font-family: "hpeRegularFont";
+  font-size: 24px;
+  user-select: none;
+  padding-bottom: 11px;
+  padding-left: 0;
+  color: #ffffff;
+}
+
+.btn {
+  --bs-btn-bg: var(--hpe-green);
+  --bs-btn-hover-bg: var(--hpe-green);
+  --bs-btn-active-bg: var(--bs-red);
+}
+
+.btn-main {
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: "hpeSemiFont";
+  width: 100%;
+}
+
+.btn-main:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+  background-color: transparent;
+  color: #606b7d !important;
+  border-color: #606b7d;
+  border: 1px solid #bbb;
+  pointer-events: all !important;
+}
+
+.box-container {
+  display: block;
+  unicode-bidi: isolate;
+  box-sizing: border-box;
+  top: 35%;
+  left: 50%;
+  position: absolute;
+  width: 450px;
+  margin: -100px 0 0 -230px;
+}

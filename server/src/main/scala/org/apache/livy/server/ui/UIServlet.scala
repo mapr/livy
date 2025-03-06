@@ -72,6 +72,7 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
       <script src={basePath + "/static/js/jquery.dataTables.min.js"}></script>
       <script src={basePath + "/static/js/dataTables.bootstrap.min.js"}></script>
       <script src={basePath + "/static/js/livy-ui.js"}></script>
+      <script src={basePath + "/static/datafabric/js/login.js"}></script>
       <script type="text/javascript">
         setBasePath({"'" + basePath + "'"});
       </script>
@@ -84,9 +85,10 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
         <img alt="Livy" src={basePath + "/static/img/livy-mini-logo.png"} />
       </a>
       <div class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
+        <ul class="nav navbar-nav mr-auto">
           {crumbs}
         </ul>
+        <button class="btn" onclick="logoutAction()">Logout</button>
       </div>
     </nav>
 

@@ -172,13 +172,25 @@ configure_hive() {
 
 configure_secure() {
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
-    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type" "multiauth-sso"
 
-    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class"
-    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class" "org.apache.hadoop.security.authentication.server.AuthenticationFilter"
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth-sso.class"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth-sso.class" "org.apache.spark.ui.filters.MultiauthWebUiFilter"
 
-    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type"
-    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type" "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler"
+    allowed_resources="/login
+/login/
+/static/datafabric/font/MetricHPE-Web-Bold.woff
+/static/datafabric/font/MetricHPE-Web-Regular.woff
+/static/datafabric/font/MetricHPE-Web-Semibold.woff
+/static/datafabric/images/favicon.ico
+/static/datafabric/images/hpe-logo-invert.svg
+/static/datafabric/js/login.js
+/static/datafabric/css/login.css
+/static/datafabric/css/bootstrap.min.css
+/static/datafabric/css/bootstrap.min.css.map"
+    allowed_resources_arg=$(echo -n "$allowed_resources" | tr '\n' ',')
+    conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth-sso.param.allowedResources"
+    conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth-sso.param.allowedResources" "$allowed_resources_arg"
 
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "true"
@@ -186,8 +198,6 @@ configure_secure() {
 
 configure_unsecure() {
     conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.type"
-    conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.class"
-    conf_comment "${LIVY_HOME}/conf/livy.conf" "livy.server.auth.multiauth.param.type"
 
     conf_uncomment "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled"
     conf_set_property "${LIVY_HOME}/conf/livy.conf" "livy.server.access-control.enabled" "false"

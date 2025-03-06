@@ -38,6 +38,7 @@ import org.scalatra.servlet.{MultipartConfig, ServletApiImplicits}
 import org.apache.livy._
 import org.apache.livy.server.auth.LdapAuthenticationHandlerImpl
 import org.apache.livy.server.batch.BatchSessionServlet
+import org.apache.livy.server.datafabric.LoginPageServlet
 import org.apache.livy.server.interactive.InteractiveSessionServlet
 import org.apache.livy.server.recovery.{SessionStore, StateStore, ZooKeeperManager}
 import org.apache.livy.server.ui.UIServlet
@@ -243,6 +244,8 @@ class LivyServer extends Logging {
             } else {
               mount(context, uiRedirectServlet(basePath + "/metrics"), "/*")
             }
+
+            mount(context, new LoginPageServlet(), "/login")
 
             context.mountMetricsAdminServlet("/metrics")
 
