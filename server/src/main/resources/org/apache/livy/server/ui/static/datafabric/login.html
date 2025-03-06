@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/static/datafabric/images/favicon.ico" type="image/x-icon" />
+  <title>Livy - Login</title>
+  <link rel="stylesheet" href="/static/datafabric/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/static/datafabric/css/login.css" />
+  <script src="/static/datafabric/js/login.js"></script>
+</head>
+<body>
+<main class="py-5">
+  <section class="py-5">
+    <div id="loginBox" class="box-container">
+      <div class="container">
+        <img src="/static/datafabric/images/hpe-logo-invert.svg" alt="hpe-logo" />
+        <div>
+          <div class="brand-name">HPE Ezmeral Data Fabric</div>
+          <div class="product-name" id="serviceName">Livy</div>
+        </div>
+        <form id="loginForm" class="d-grid gap-2">
+          <div class="input-group">
+            <input autocomplete="off" placeholder="User Name" name="username" type="text" id="loginUser" class="form-control" required="required" />
+          </div>
+          <div class="input-group">
+            <input autocomplete="off" placeholder="Password" name="password" type="password" id="loginPassword" class="form-control" required="required" />
+          </div>
+          <div id="error" class="text-danger"></div>
+          <div class="input-group">
+            <input type="submit" class="btn btn-main" text="Log in" />
+          </div>
+          <hr />
+        </form>
+        <div class="input-group">
+          <button id="ssoBtn" class="btn btn-main">Log in with SSO</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+  loginForm.addEventListener("submit", function(event) {
+      checkRedirect();
+      signIn();
+      event.preventDefault();
+  });
+
+  ssoBtn.addEventListener("click", function () {
+      ssoProceed();
+  });
+
+  window.addEventListener("DOMContentLoaded", (event) => {
+      checkRedirect();
+      checkCheckSsoButton();
+  });
+</script>
+</body>
+</html>
