@@ -5,7 +5,7 @@ SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 . "${SCRIPT_DIR}/_initialize_package_variables.sh"
 . "${SCRIPT_DIR}/_utils.sh"
 
-build_livy() {
+build_code() {
   mkdir -p "${BUILD_ROOT}/build"
 
   mvn -B clean package -DskipTests
@@ -19,7 +19,7 @@ main() {
   rm -rf "$BUILD_ROOT"
 
   echo "Building project..."
-  build_livy
+  build_code
 
   echo "Preparing directory structure..."
   setup_role "mapr-livy"
