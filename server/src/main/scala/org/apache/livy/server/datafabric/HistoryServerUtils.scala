@@ -17,6 +17,11 @@
 
 package org.apache.livy.server.datafabric
 
+import java.io.StringReader
+import java.util.Properties
+
+import scala.collection.JavaConverters._
+
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 
 import org.apache.livy.Logging
@@ -54,6 +59,15 @@ class HistoryServerUtils(namespace: String) extends Logging {
             "sparkhs-eventlog-storage.mount.readOnly" -> "false",
           "spark.eventLog.dir" -> mountPath
         )
+      case "s3" =>
+        val eventlogProperties = sparkHSCM.getData.get("eventlog.properties")
+        if (eventlogProperties == null) {
+          debug("The 'eventlog.properties' section is not found in 'sparkhs-cm'.")
+          return Map()
+        }
+        val properties = new Properties
+        properties.load(new StringReader(eventlogProperties))
+        properties.asScala.toMap
       case _ =>
         warn(s"Unknown storage type $hsStorageType. No HS settings will be added")
         Map()
