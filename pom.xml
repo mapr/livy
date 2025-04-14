@@ -83,8 +83,8 @@
     <slf4j.version>1.7.36</slf4j.version>
     <reload4j.version>1.2.25</reload4j.version>
     <spark.scala-2.11.version>2.4.5</spark.scala-2.11.version>
-    <spark.scala-2.12.version>3.3.2.0-eep-SNAPSHOT</spark.scala-2.12.version>
-    <spark.compatversion>3.3.2</spark.compatversion>
+    <spark.scala-2.12.version>3.5.5.0-eep-SNAPSHOT</spark.scala-2.12.version>
+    <spark.compatversion>3.5.5</spark.compatversion>
     <spark.version>${spark.scala-2.12.version}</spark.version>
     <kubernetes.client.version>6.7.2</kubernetes.client.version>
     <hive.version>3.0.0</hive.version>
@@ -114,7 +114,7 @@
     <!-- profile controlled parameters, we are setting the defaults here so we can run "mvn package" with default profile values -->
     <!-- hadoop2 -->
     <hadoop.major-minor.version>3</hadoop.major-minor.version>
-    <hadoop.version>3.3.5.200-eep-921-SNAPSHOT</hadoop.version>
+    <hadoop.version>3.4.1.0-eep-940-SNAPSHOT</hadoop.version>
     <!-- scala2.11 -->
     <scala.binary.version>2.12</scala.binary.version>
     <scala.version>2.12.15</scala.version>
@@ -141,7 +141,7 @@
     <ldap-api.version>2.1.2</ldap-api.version>
 
     <curator.version>4.2.0</curator.version>
-    <zookeeper.version>3.5.6.0-mapr-2009</zookeeper.version>
+    <zookeeper.version>3.8.3.0-mapr-SNAPSHOT</zookeeper.version>
     <zookeeper.scope>provided</zookeeper.scope>
     <curator.scope>${zookeeper.scope}</curator.scope>
 
