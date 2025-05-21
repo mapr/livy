@@ -60,6 +60,8 @@ class HistoryServerUtils(namespace: String) extends Logging {
           "spark.eventLog.dir" -> mountPath
         )
       case "s3" =>
+        debug(s"Using S3 HS storage with the configuration " +
+          "from the 'eventlog.properties' section of the 'sparkhs-cm' ConfigMap.")
         val eventlogProperties = sparkHSCM.getData.get("eventlog.properties")
         if (eventlogProperties == null) {
           debug("The 'eventlog.properties' section is not found in 'sparkhs-cm'.")

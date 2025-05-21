@@ -17,8 +17,10 @@
 
 package org.apache.livy.server.datafabric
 
+import scala.collection.JavaConverters._
+
 import com.mapr.security.UnixUserGroupHelper
-import io.fabric8.kubernetes.api.model.{Secret, SecretBuilder}
+import io.fabric8.kubernetes.api.model.{ListOptions, Secret, SecretBuilder}
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import javax.servlet.ServletException
 import org.apache.commons.codec.binary.Base64
@@ -33,7 +35,11 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
   val userSecretName: String = userInfo.userSecretName
 
   private def buildUserSecret: Secret = {
-    val userLookupService = livyConf.get(LivyConf.KUBERNETES_USER_LOOKUP_SERVICE)
+    val userLookupService = if (isEzProjectNamespace(namespace)) {
+      "ezproject"
+    } else {
+      livyConf.get(LivyConf.KUBERNETES_USER_LOOKUP_SERVICE)
+    }
 
     var uid: Option[Int] = null
     var gid: Option[Int] = null
@@ -52,6 +58,25 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
         uid = Option(userInfoData.get("uid").toInt)
         gid = Option(userInfoData.get("gid").toInt)
         groupName = Option(userInfoData.getOrDefault("group", userInfo.username))
+      }
+      case "ezproject" => {
+        val listOptions = new ListOptions()
+        listOptions.setLabelSelector("ezprojects.hpe.com/resource=project-info")
+
+        val configmaps = k8sClient.configMaps().list(listOptions).getItems.asScala.toList
+
+        val projectInfoCM = configmaps match {
+          case Nil =>
+            throw new ServletException("Could not find 'project-info' ConfigMap.")
+          case single :: Nil =>
+            single.getData
+          case _ =>
+            throw new ServletException("Found multiple 'project-info' ConfigMaps.")
+        }
+
+        uid = Option(projectInfoCM.get("uid")).map(_.toInt)
+        gid = Option(projectInfoCM.get("gid")).map(_.toInt)
+        groupName = Option(projectInfoCM.getOrDefault("group", userInfo.username))
       }
       case _ => {
         throw new ServletException(
@@ -98,5 +123,12 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
     } else {
       info(s"Secret '${userSecretName}' for user '${userInfo.username}' already exists.")
     }
+  }
+
+  private def isEzProjectNamespace(namespace: String): Boolean = {
+    Option(k8sClient.namespaces.withName(namespace).get)
+      .flatMap(ns => Option(ns.getMetadata))
+      .flatMap(meta => Option(meta.getLabels))
+      .exists(_.containsKey("ezprojects.hpe.com/ezproject"))
   }
 }

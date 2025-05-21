@@ -17,6 +17,8 @@
 
 package org.apache.livy.server.datafabric
 
+import scala.collection.JavaConverters._
+
 import io.fabric8.kubernetes.api.model.ListOptions
 import io.fabric8.kubernetes.client.KubernetesClientBuilder
 import io.fabric8.kubernetes.client.KubernetesClientException
@@ -49,41 +51,54 @@ object K8SUserInfo extends Logging {
     new K8SUserInfo(username, namespace, secret, driverSA, executorSA)
   }
 
+  private def findNamespaceByLabel(labelSelector: String): Option[String] = {
+    val listOptions = new ListOptions()
+    listOptions.setLabelSelector(labelSelector)
+
+    client.namespaces().list(listOptions).getItems.asScala.toList match {
+      case Nil =>
+        debug(s"Could not find user namespace by selector '$labelSelector'.")
+        None
+      case ns :: Nil =>
+        val name = ns.getMetadata.getName
+        debug(s"Found namespace by '$labelSelector' selector: $name.")
+        Some(name)
+      case _ =>
+        warn(s"Found multiple user namespaces by selector '$labelSelector'.")
+        None
+    }
+  }
+
   private def getUserNamespace(username: String, livyConf: LivyConf): Option[String] = {
-    val selector = "hpe-ezua/username=" + username
+    val ezProjectLabelSelector = "ezprojects.hpe.com/private=" + username
+    val ezuaLabelSelector = "hpe-ezua/username=" + username
 
-    try {
-      val listOptions = new ListOptions()
-      listOptions.setLabelSelector(selector)
-
-      val namespaces = client.namespaces().list(listOptions).getItems
-
-      namespaces.size() match {
-        case 0 =>
-          warn(s"Could not find user namespace by selector '$selector'.")
-        case 1 =>
-          val ns = namespaces.get(0).getMetadata.getName
-          info(s"Found namespace by '$selector' selector: $ns.")
-          return Option(ns)
-        case _ =>
-          warn(s"Found multiple user namespaces by selector '$selector'.")
-      }
+    val res = try {
+      findNamespaceByLabel(ezProjectLabelSelector)
+        .orElse(findNamespaceByLabel(ezuaLabelSelector))
+        .orElse {
+          warn("Could not find user namespace by label.")
+          None
+        }
     } catch {
       case _: KubernetesClientException =>
         warn("Failed to lookup Kubernetes namespaces.")
+        None
     }
 
-    val pattern = livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)
-    if (!pattern.isBlank) {
-      val ns = String.format(pattern, username)
-      info(s"Setting namespace based on '${LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN.key}' " +
-        s"value: $ns.")
-      return Option(ns)
+    res.orElse {
+      val pattern = livyConf.get(LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN)
+      if (!pattern.isBlank) {
+        val hello = String.format(pattern, username)
+        info(s"Setting namespace based on '${LivyConf.KUBERNETES_NAMESPACE_USER_PATTERN.key}' " +
+          s"value: $hello.")
+        Option(hello)
+      } else {
+        warn(s"Neither namespace with label nor namespace pattern option is available, " +
+          "falling back to value from sparkConf.")
+        None
+      }
     }
-
-    warn(s"Neither namespace with '$selector' label nor namespace pattern option is available, " +
-      "falling back to value from sparkConf.")
-    Option(null)
   }
 
   private def secretName(realUsername: String,
@@ -115,5 +130,4 @@ object K8SUserInfo extends Logging {
       .filter(_.nonEmpty)
       .map(pattern => String.format(pattern, formattedUsername))
   }
-
 }
