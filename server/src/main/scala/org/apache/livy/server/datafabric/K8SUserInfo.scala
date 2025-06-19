@@ -18,6 +18,7 @@
 package org.apache.livy.server.datafabric
 
 import scala.collection.JavaConverters._
+import scala.util.Random
 
 import io.fabric8.kubernetes.api.model.ListOptions
 import io.fabric8.kubernetes.client.KubernetesClientBuilder
@@ -111,11 +112,16 @@ object K8SUserInfo extends Logging {
     }
 
     val secretNamePattern = livyConf.get(LivyConf.KUBERNETES_USER_SECRET_PATTERN)
-    val maybeSecretName = String.format(secretNamePattern, formattedUsername)
-    if (maybeSecretName.length < 63) {
-      maybeSecretName
+    val secretName = String.format(secretNamePattern, formattedUsername)
+    val maxLength = 63 - "-volume".length
+    if (secretName.length <= maxLength) {
+      secretName
     } else {
-      formattedUsername
+      val randSuffix = "-" + Random.alphanumeric
+        .filter(c => c.isLower || c.isDigit)
+        .take(5)
+        .mkString
+      secretName.take(maxLength - randSuffix.length) + randSuffix
     }
   }
 
