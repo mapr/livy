@@ -1,20 +1,20 @@
 %undefine __check_files
 
-summary:     Ezmeral Ecosystem Pack: Livy package
+summary:     HPE DataFabric Ecosystem Pack: Apache Livy
 license:     Hewlett Packard Enterprise, CopyRight
-vendor:      Hewlett Packard Enterprise, <ezmeral_software_support@hpe.com>
+vendor:      Hewlett Packard Enterprise
 name:        mapr-livy
 version:     __RELEASE_VERSION__
 release:     1
 prefix:      /
-group:       MapR
+group:       HPE
 buildarch:   noarch
 obsoletes:   mapr-hue-livy
 requires:    mapr-spark >= 2.0.0, mapr-client, mapr-hadoop-client
 AutoReqProv: no
 
 %description
-Ezmeral Ecosystem Pack: Livy package
+Apache Livy distribution included in HPE DataFabric Software Ecosystem Pack
 Tag: __RELEASE_BRANCH__
 Commit: __GIT_COMMIT__
 
