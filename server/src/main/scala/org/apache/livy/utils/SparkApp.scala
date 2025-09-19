@@ -98,7 +98,8 @@ object SparkApp {
         // Mark Spark pods as created by Livy for the additional tracing
         s"spark.kubernetes.driver.label.$CREATED_BY_ANNOTATION" -> "livy",
         s"spark.kubernetes.executor.label.$CREATED_BY_ANNOTATION" -> "livy",
-        "spark.kubernetes.submission.waitAppCompletion" -> "false")
+        "spark.kubernetes.submission.waitAppCompletion" -> "false",
+        "spark.ui.view.acls" -> targetNamespace)
 
       if (userInfo.driverSA.nonEmpty) {
         result ++= Map("spark.kubernetes.authenticate.driver.serviceAccountName" ->
