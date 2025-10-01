@@ -1,6 +1,6 @@
 ---
 slackChannel: "eco-build"
-initialReleaseTag: '0.8.0.300-dep-1000' # Use only for release build
+initialReleaseTag: '0.8.0.200-dep-1000' # Use only for release build
 whitesourceScan: true
 build:
   - name: ubuntu
