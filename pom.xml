@@ -114,7 +114,7 @@
     <!-- profile controlled parameters, we are setting the defaults here so we can run "mvn package" with default profile values -->
     <!-- hadoop2 -->
     <hadoop.major-minor.version>3</hadoop.major-minor.version>
-    <hadoop.version>3.4.1.100-eep-941</hadoop.version>
+    <hadoop.version>3.4.1.200-dep-1000-SNAPSHOT</hadoop.version>
     <!-- scala2.11 -->
     <scala.binary.version>2.12</scala.binary.version>
     <scala.version>2.12.15</scala.version>
