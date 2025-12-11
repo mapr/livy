@@ -21,7 +21,7 @@
   <parent>
     <artifactId>livy-main</artifactId>
     <groupId>org.apache.livy</groupId>
-    <version>0.8.0.200-dep-1000-SNAPSHOT</version>
+    <version>0.8.0.300-dep-1010-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
