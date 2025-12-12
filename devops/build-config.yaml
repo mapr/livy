@@ -8,7 +8,7 @@ build:
     basicBuildCommands: "_BUILD_ENV_VARS_ devops/scripts/build.sh"
     hostmachine_jenkins_label: "ubuntu16"
   - name: centos
-    imageCustom: devops/buildimages/centos/image.sh
+    image: _DOCKER_REGISTRY_/rhel-ubi9-java17-gcc11:core-latest
     basicBuildCommands: "_BUILD_ENV_VARS_ devops/scripts/build.sh"
     hostmachine_jenkins_label: "redhat8"
     rpmSign: true

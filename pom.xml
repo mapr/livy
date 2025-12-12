@@ -107,7 +107,7 @@
     <scalatra.version>2.6.5</scalatra.version>
     <java.version>1.8</java.version>
     <minJavaVersion>1.8</minJavaVersion>
-    <maxJavaVersion>11</maxJavaVersion>
+    <maxJavaVersion>17</maxJavaVersion>
     <test.redirectToFile>true</test.redirectToFile>
     <execution.root>${user.dir}</execution.root>
     <spark.home>${execution.root}/dev/spark</spark.home>
