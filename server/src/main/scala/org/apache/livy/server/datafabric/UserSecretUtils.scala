@@ -89,6 +89,7 @@ class UserSecretUtils(var userInfo: K8SUserInfo,
     val secretBuilder = new SecretBuilder()
       .withNewMetadata
       .withName(userSecretName)
+      .addToLabels("created-by", "livy")
       .endMetadata
 
     val b64 = new Base64
