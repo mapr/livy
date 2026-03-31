@@ -83,7 +83,7 @@
     <slf4j.version>1.7.36</slf4j.version>
     <reload4j.version>1.2.25</reload4j.version>
     <spark.scala-2.11.version>2.4.5</spark.scala-2.11.version>
-    <spark.scala-2.12.version>3.5.5.200-dep-SNAPSHOT</spark.scala-2.12.version>
+    <spark.scala-2.12.version>3.5.5.500-dep-1010-SNAPSHOT</spark.scala-2.12.version>
     <spark.compatversion>3.5.5</spark.compatversion>
     <spark.version>${spark.scala-2.12.version}</spark.version>
     <kubernetes.client.version>6.7.2</kubernetes.client.version>
@@ -114,7 +114,7 @@
     <!-- profile controlled parameters, we are setting the defaults here so we can run "mvn package" with default profile values -->
     <!-- hadoop2 -->
     <hadoop.major-minor.version>3</hadoop.major-minor.version>
-    <hadoop.version>3.4.1.200-dep-1000-SNAPSHOT</hadoop.version>
+    <hadoop.version>3.4.1.400-dep-1010-SNAPSHOT</hadoop.version>
     <!-- scala2.11 -->
     <scala.binary.version>2.12</scala.binary.version>
     <scala.version>2.12.15</scala.version>
