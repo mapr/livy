@@ -129,13 +129,16 @@ function loadStatementsTable(statements) {
 }
 
 $(document).ready(function () {
-  var id = getPathArray().pop();
+  var pathArr = getPathArray();
+  var id = pathArr.pop();
+  pathArr.pop();
+  var ownerPath = usesOwnerPath() && pathArr.length > 0 ? pathArr.pop() + "/" : "";
 
-  $.getJSON(location.origin + prependBasePath("/sessions/") + id, function(response) {
+  $.getJSON(location.origin + prependBasePath("/" + ownerPath + "sessions/") + id, function(response) {
     if (response) {
       appendSummary(response);
 
-      $.getJSON(location.origin + prependBasePath("/sessions/") + id + "/statements", function(statementsRes) {
+      $.getJSON(location.origin + prependBasePath("/" + ownerPath + "sessions/") + id + "/statements", function(statementsRes) {
         if (statementsRes && statementsRes.total_statements > 0) {
           $("#session-statements").load(prependBasePath("/static/html/statements-table.html .statements-template"),
           function() {

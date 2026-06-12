@@ -192,6 +192,8 @@ livy.impersonation.enabled = true
 
 # If the Livy Web UI should be included in the Livy Server. Enabled by default.
 # livy.ui.enabled = true
+# Enable custom AIE Livy UI routing, where owner is included in UI paths such as /ui/<owner>/....
+# livy.ui.aie.enabled = false
 
 # Whether to enable Livy server access control, if it is true then all the income requests will
 # be checked if the requested user has permission.

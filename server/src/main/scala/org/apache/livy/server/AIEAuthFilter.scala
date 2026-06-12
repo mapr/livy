@@ -20,7 +20,7 @@ package org.apache.livy.server
 import java.io.IOException
 
 import jakarta.servlet._
-import jakarta.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
+import jakarta.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse}
 
 import org.apache.livy.Logging
 
@@ -38,32 +38,45 @@ class AIEAuthFilter extends Filter with Logging {
                          chain: FilterChain): Unit = {
 
     val httpReq = request.asInstanceOf[HttpServletRequest]
-
-    val isGetAllSessionsOrBatches = httpReq.getMethod == "GET" &&
-      httpReq.getRequestURI != null &&
-      httpReq.getRequestURI.matches(".*/(?:sessions|batches)/?")
+    val uri = httpReq.getRequestURI
 
     val forwardedUser = Option(httpReq.getHeader("X-Forwarded-User"))
       .map(_.trim)
       .filter(_.nonEmpty)
 
-    if (isGetAllSessionsOrBatches && forwardedUser.isEmpty) {
+    val isUIEndpoint = uri != null && uri.matches("^/ui(?:/.*)?$")
+    val isStaticResource = uri != null && uri.matches("/static/.*")
+    val isLogoutRequest = Option(httpReq.getParameter("action"))
+      .map(_.trim)
+      .exists(_.equalsIgnoreCase("logout"))
+    val isGetAllSessionsOrBatches = httpReq.getMethod == "GET" &&
+      uri != null && uri.matches(".*/(?:sessions|batches)/?")
+
+    if (isUIEndpoint || isStaticResource) {
+      info("Allowing access to UI endpoint")
+      chain.doFilter(httpReq, response)
+    } else if (isLogoutRequest && forwardedUser.isEmpty) {
+      info("Allowing logout request without X-Forwarded-User header")
+      chain.doFilter(httpReq, response)
+    } else if (isGetAllSessionsOrBatches && forwardedUser.isEmpty) {
       info("Allowing access to get all sessions/batches endpoint")
       chain.doFilter(httpReq, response)
-      return
+    } else {
+      forwardedUser match {
+        case Some(projectNamespace) =>
+          info(s"Project namespace: $projectNamespace")
+
+          val wrappedRequest = new HttpServletRequestWrapper(httpReq) {
+            override def getRemoteUser: String = projectNamespace
+          }
+          chain.doFilter(wrappedRequest, response)
+        case None =>
+          error("Missing or empty X-Forwarded-User header for authorization.")
+          val httpResp = response.asInstanceOf[HttpServletResponse]
+          httpResp.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+            "Required headers for authorization are missing.")
+      }
     }
-
-    val projectNamespace = forwardedUser.getOrElse {
-      throw new ServletException("Missing or empty X-Forwarded-User header")
-    }
-
-    info(s"Project namespace: $projectNamespace")
-
-    val wrappedRequest = new HttpServletRequestWrapper(httpReq) {
-      override def getRemoteUser: String = projectNamespace
-    }
-
-    chain.doFilter(wrappedRequest, response)
   }
 
   override def destroy(): Unit = {}

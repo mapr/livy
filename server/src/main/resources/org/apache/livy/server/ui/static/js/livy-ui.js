@@ -39,6 +39,34 @@ function uiLink(relativePath, inner) {
   return anchorLink(prependBasePath("/ui/") + relativePath, inner);
 }
 
+var aieUiEnabled = false;
+var ownerPathHosts = [];
+
+function setAieUiEnabled(enabled) {
+  aieUiEnabled = String(enabled).toLowerCase() === "true";
+}
+
+function setOwnerPathHosts(hosts) {
+  ownerPathHosts = String(hosts || "")
+    .split(/[, ]+/)
+    .filter(function (host) {
+      return host.length > 0;
+    });
+}
+
+function usesOwnerPath() {
+  return aieUiEnabled && ownerPathHosts.some(function (host) {
+    return location.hostname.indexOf(host) !== -1;
+  });
+}
+
+function ownerUiLink(owner, relativePath, inner) {
+  if (usesOwnerPath()) {
+    return anchorLink(prependBasePath("/ui/") + owner + "/" + relativePath, inner);
+  }
+  return anchorLink(prependBasePath("/ui/") + relativePath, inner);
+}
+
 function anchorLink(link, inner) {
   return '<a href="' + link + '">' + inner + "</a>";
 }
@@ -64,8 +92,14 @@ function executorsLogLinks(session) {
   }
 }
 
+function sessionLogLink(session, kind) {
+  var ownerPrefix = usesOwnerPath() ? session.owner + "/" : "";
+  var logPath = prependBasePath("/ui/") + ownerPrefix + kind + "/" + session.id + "/log";
+  return anchorLink(logPath, "session");
+}
+
 function logLinks(session, kind) {
-  var sessionLog = divWrap(uiLink(kind + "/" + session.id + "/log", "session"));
+  var sessionLog = divWrap(sessionLogLink(session, kind));
   var driverLog =  divWrap(driverLogLink(session));
   var executorsLogs = executorsLogLinks(session);
   return sessionLog + driverLog + executorsLogs;

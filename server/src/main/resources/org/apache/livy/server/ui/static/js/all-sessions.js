@@ -23,7 +23,7 @@ function loadSessionsTable(sessions) {
   $.each(sessions, function(index, session) {
     $("#interactive-sessions .sessions-table-body").append(
       "<tr>" +
-        tdWrap(uiLink("session/" + session.id, session.id)) +
+        tdWrap(ownerUiLink(session.owner, "session/" + session.id, session.id)) +
         tdWrap(appIdLink(session)) +
         tdWrap(escapeHtml(session.name)) +
         tdWrap(session.owner) +
@@ -56,7 +56,10 @@ var numSessions = 0;
 var numBatches = 0;
 
 $(document).ready(function () {
-  var sessionsReq = $.getJSON(location.origin + prependBasePath("/sessions"), function(response) {
+  var pathArr = getPathArray();
+  var owner = usesOwnerPath() && pathArr.length > 0 && pathArr[0].length > 0 ? pathArr[0] : "";
+  var ownerPrefix = owner ? "/" + owner : "";
+  var sessionsReq = $.getJSON(location.origin + prependBasePath(ownerPrefix + "/sessions"), function(response) {
     if (response && response.total > 0) {
       $("#interactive-sessions").load(prependBasePath("/static/html/sessions-table.html .sessions-template"), function() {
         loadSessionsTable(response.sessions);
@@ -67,7 +70,7 @@ $(document).ready(function () {
     numSessions = response.total;
   });
 
-  var batchesReq = $.getJSON(location.origin + prependBasePath("/batches"), function(response) {
+  var batchesReq = $.getJSON(location.origin + prependBasePath(ownerPrefix + "/batches"), function(response) {
     if (response && response.total > 0) {
       $("#batches").load(prependBasePath("/static/html/batches-table.html .sessions-template"), function() {
         loadBatchesTable(response.sessions);

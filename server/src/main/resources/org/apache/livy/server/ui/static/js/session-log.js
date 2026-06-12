@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-function getLogPath(type, id) {
+function getLogPath(ownerPath, type, id) {
   if (type == "session") {
-    return "/sessions/" + id + "/log";
+    return "/" + ownerPath + "sessions/" + id + "/log";
   } else if (type == "batch") {
-    return "/batches/" + id + "/log";
+    return "/" + ownerPath + "batches/" + id + "/log";
   } else {
     return "";
   }
@@ -67,10 +67,12 @@ function parseLog(logLines) {
 
 $(document).ready(function () {
   var pathArr = getPathArray();
-  var type = pathArr.shift();
-  var id = pathArr.shift();
+  pathArr.pop();
+  var id = pathArr.pop();
+  var type = pathArr.pop();
+  var ownerPath = usesOwnerPath() && pathArr.length > 0 ? pathArr.pop() + "/" : "";
 
-  $.getJSON(location.origin + prependBasePath(getLogPath(type, id)), {size: -1}, function(response) {
+  $.getJSON(location.origin + prependBasePath(getLogPath(ownerPath, type, id)), {size: -1}, function(response) {
     if (response) {
       $("#session-log").append(parseLog(response.log));
       $('#session-log [data-toggle="tooltip"]').tooltip();

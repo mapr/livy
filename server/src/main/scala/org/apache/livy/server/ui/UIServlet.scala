@@ -26,6 +26,13 @@ import org.apache.livy.LivyConf
 class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServlet {
   before() { contentType = "text/html" }
 
+  private val aieUiEnabled = livyConf.getBoolean(LivyConf.UI_AIE_ENABLED)
+  private val ownerPathHosts = livyConf.get(LivyConf.UI_OWNER_PATH_HOSTS)
+
+  private def toSingleQuotedJsString(value: String): String = {
+    "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+  }
+
   private trait Page {
     val name: String
     def getNavCrumbs: Seq[Node] = Seq.empty
@@ -43,12 +50,12 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
           <li class="active nav-item"><a href="#" class="nav-link">{name}</a></li>
     }
   }
-  private case class LogPage(sessionType: String, id: Int) extends Page {
+  private case class LogPage(sessionType: String, id: Int, ownerPath: String = "") extends Page {
     val sessionName: String = sessionType + " " + id
     val name: String = sessionName + " Log"
     override def getNavCrumbs: Seq[Node] = {
       val sessionLink = if (sessionType == "Session") {
-        basePath + "/ui/session/" + id
+        basePath + "/ui/" + ownerPath + "session/" + id
       } else {
         "#"
       }
@@ -75,6 +82,8 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
       <script src={basePath + "/static/datafabric/js/login.js"}></script>
       <script type="text/javascript">
         setBasePath({"'" + basePath + "'"});
+        setAieUiEnabled({toSingleQuotedJsString(aieUiEnabled.toString)});
+        setOwnerPathHosts({toSingleQuotedJsString(ownerPathHosts)});
       </script>
       <title>Livy - {pageName}</title>
     </head>
@@ -130,6 +139,22 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
     createPage(AllSessionsPage(), content)
   }
 
+  get("/:owner/?") {
+    if (aieUiEnabled) {
+      val content =
+        <div id="all-sessions">
+          <div id="interactive-sessions"></div>
+          <div id="batches"></div>
+          {thriftSessionsTable}
+          <script src={basePath + "/static/js/all-sessions.js"}></script>
+        </div>
+
+      createPage(AllSessionsPage(), content)
+    } else {
+      notFound()
+    }
+  }
+
   get("/session/:id") {
     val content =
       <div id="session-page">
@@ -139,6 +164,24 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
       </div>
 
     createPage(SessionPage(params("id").toInt), content)
+  }
+
+  // Owner is carried in the path (e.g. /ui/<owner>/session/:id) when accessed
+  // through the Livy wrapper. The owner segment is informational for routing and
+  // is ignored when rendering the page.
+  get("/:owner/session/:id") {
+    if (aieUiEnabled) {
+      val content =
+        <div id="session-page">
+          <div id="session-summary"></div>
+          <div id="session-statements"></div>
+          <script src={basePath + "/static/js/session.js"}></script>
+        </div>
+
+      createPage(SessionPage(params("id").toInt), content)
+    } else {
+      notFound()
+    }
   }
 
   private def getLogPage(page: LogPage): Seq[Node] = {
@@ -157,5 +200,21 @@ class UIServlet(val basePath: String, livyConf: LivyConf) extends ScalatraServle
 
   get("/batch/:id/log") {
     getLogPage(LogPage("Batch", params("id").toInt))
+  }
+
+  get("/:owner/session/:id/log") {
+    if (aieUiEnabled) {
+      getLogPage(LogPage("Session", params("id").toInt, params("owner") + "/"))
+    } else {
+      notFound()
+    }
+  }
+
+  get("/:owner/batch/:id/log") {
+    if (aieUiEnabled) {
+      getLogPage(LogPage("Batch", params("id").toInt, params("owner") + "/"))
+    } else {
+      notFound()
+    }
   }
 }
