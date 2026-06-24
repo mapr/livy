@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# summary of how this script can be called:
+#        * <new-preinst> `install'
+#        * <new-preinst> `install' <old-version>
+#        * <new-preinst> `upgrade' <old-version>
+#        * <old-preinst> `abort-upgrade' <new-version>
+# for details, see https://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+before_install() {
+    :
+}
+
+before_upgrade() {
+    #
+    # Backup of old configuration files
+    #
+    OLD_TIMESTAMP=$1
+    OLD_VERSION=$(echo $OLD_TIMESTAMP | grep -o '^[0-9]*\.[0-9]*\.[0-9]*')
+
+    OLD_DIR="__PREFIX__/livy/livy-${OLD_VERSION}"
+    BCK_DIR="__PREFIX__/livy/livy-${OLD_TIMESTAMP}"
+
+    CONF_SRC_DST="${OLD_DIR}/conf/ ${BCK_DIR}/"
+    echo "$CONF_SRC_DST" | while read CONF_SRC CONF_DST; do
+        mkdir -p "$CONF_DST"
+        if [ -e "$CONF_SRC" ]; then
+            cp -r "$CONF_SRC" "$CONF_DST"
+        fi
+    done
+}
+
+
+case "$1" in
+    install)
+        before_install
+    ;;
+
+    upgrade)
+        before_install
+        before_upgrade "$2"
+    ;;
+
+    abort-upgrade)
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
