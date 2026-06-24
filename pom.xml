@@ -79,13 +79,14 @@
 
   <properties>
     <asynchttpclient.version>2.10.1</asynchttpclient.version>
-    <hadoop.scope>compile</hadoop.scope>
+    <hadoop.scope>provided</hadoop.scope>
     <slf4j.version>1.7.36</slf4j.version>
     <reload4j.version>1.2.26</reload4j.version>
     <spark.scala-2.11.version>2.4.5</spark.scala-2.11.version>
-    <spark.scala-2.12.version>2.4.5</spark.scala-2.12.version>
-    <spark.version>${spark.scala-2.11.version}</spark.version>
-    <kubernetes.client.version>5.6.0</kubernetes.client.version>
+    <spark.scala-2.12.version>3.5.5.500-dep-1010-SNAPSHOT</spark.scala-2.12.version>
+    <spark.version>${spark.scala-2.12.version}</spark.version>
+    <spark.compatversion>3.5.5</spark.compatversion>
+    <kubernetes.client.version>6.7.2</kubernetes.client.version>
     <hive.version>3.0.0</hive.version>
     <commons-codec.version>1.15</commons-codec.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
@@ -97,11 +98,11 @@
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <jetty.version>9.4.56.v20240826</jetty.version>
     <junit.version>4.13.1</junit.version>
-    <libthrift.version>0.9.3</libthrift.version>
+    <libthrift.version>0.13.0</libthrift.version>
     <kryo.version>5.5.0</kryo.version>
     <metrics.version>3.1.0</metrics.version>
     <mockito.version>1.10.19</mockito.version>
-    <netty.version>4.1.86.Final</netty.version>
+    <netty.version>4.1.131.Final</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scalatest.version>3.0.8</scalatest.version>
     <scalatra.version>2.6.5</scalatra.version>
@@ -126,19 +127,19 @@
     <spark.home>${execution.root}/dev/spark</spark.home>
     <!-- profile controlled parameters, we are setting the defaults here so we can run "mvn package" with default profile values -->
     <!-- hadoop2 -->
-    <hadoop.major-minor.version>2.7</hadoop.major-minor.version>
-    <hadoop.version>2.7.3</hadoop.version>
+    <hadoop.major-minor.version>3</hadoop.major-minor.version>
+    <hadoop.version>3.4.1.400-dep-1010-SNAPSHOT</hadoop.version>
     <!-- scala2.11 -->
-    <scala.binary.version>2.11</scala.binary.version>
-    <scala.version>2.11.12</scala.version>
+    <scala.binary.version>2.12</scala.binary.version>
+    <scala.version>2.12.15</scala.version>
     <!-- spark2 -->
-    <spark.version>2.4.5</spark.version>
+    <spark.version>${spark.scala-2.12.version}</spark.version>
     <java.version>17</java.version>
-    <py4j.version>0.10.9</py4j.version>
-    <json4s.version>3.5.3</json4s.version>
-    <spark.bin.name>spark-${spark.version}-bin-hadoop${hadoop.major-minor.version}</spark.bin.name>
+    <py4j.version>0.10.9.5</py4j.version>
+    <json4s.version>3.7.0-M11</json4s.version>
+    <spark.bin.name>spark-${spark.compatversion}-bin-hadoop${hadoop.major-minor.version}</spark.bin.name>
     <spark.bin.download.url>
-      https://archive.apache.org/dist/spark/spark-${spark.version}/${spark.bin.name}.tgz
+      https://archive.apache.org/dist/spark/spark-${spark.compatversion}/${spark.bin.name}.tgz
     </spark.bin.download.url>
 
     <!--  used for testing, NCSARequestLog use it for access log  -->
@@ -148,7 +149,7 @@
     <skipRTests>false</skipRTests>
 
     <!-- Set this to "true" to skip PySpark2 tests. -->
-    <skipPySpark2Tests>false</skipPySpark2Tests>
+    <skipPySpark2Tests>true</skipPySpark2Tests>
     <!-- Set this to "true" to skip PySpark3 tests. -->
     <skipPySpark3Tests>false</skipPySpark3Tests>
 
@@ -157,7 +158,7 @@
     <ldap-api.version>2.1.2</ldap-api.version>
 
     <curator.version>5.9.0</curator.version>
-    <zookeeper.version>3.9.4</zookeeper.version>
+    <zookeeper.version>3.8.3.0-mapr-SNAPSHOT</zookeeper.version>
 
     <!--
       Properties for the copyright header style checks. Modules that use the ASF header
