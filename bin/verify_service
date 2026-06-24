@@ -1,0 +1,105 @@
+#!/bin/bash
+
+MAPR_HOME=${MAPR_HOME:-/opt/mapr}
+
+DAEMON_CONF="${MAPR_HOME}/conf/daemon.conf"
+MAPR_USER=${MAPR_USER:-$([ -f "$DAEMON_CONF" ] && grep "mapr.daemon.user" "$DAEMON_CONF" | cut -d '=' -f 2)}
+MAPR_USER=${MAPR_USER:-"mapr"}
+
+SERVICE="livy"
+
+LIVY_VERSION=$(cat "${MAPR_HOME}/livy/livyversion")
+LIVY_HOME="${MAPR_HOME}/livy/livy-${LIVY_VERSION}"
+
+LIVY_PID_FILE="${MAPR_HOME}/pid/livy-${MAPR_USER}-server.pid"
+
+LIVY_HOST="localhost"
+LIVY_PORT="8998"
+LIVY_SECURE_FILE="${LIVY_HOME}/conf/.isSecure"
+LIVY_SECURE=$(test -e "$LIVY_SECURE_FILE" && cat "$LIVY_SECURE_FILE")
+
+LOG_FILE="${LIVY_HOME}/logs/verify_service.log"
+
+EXIT_SUCCESS=0
+EXIT_NOT_RUNNING=1
+EXIT_RUNNING_NOT_RESPONDING=2
+
+timestamp() {
+    date +"[%Y-%m-%d %H:%M:%S]"
+}
+
+logInfo() {
+    message="$1"
+    echo "$(timestamp) [INFO] $message" >>"$LOG_FILE"
+}
+
+logError() {
+    message="$1"
+    echo "$(timestamp) [ERROR] $message" >>"$LOG_FILE"
+}
+
+check_running() {
+    if [ -e "$LIVY_PID_FILE" ]; then
+        pid=$(cat "$LIVY_PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            return $EXIT_SUCCESS
+        else
+            echo "PID file for service ${SERVICE} found but no matching process was found"
+            return $EXIT_NOT_RUNNING
+        fi
+    else
+        echo "PID file for service ${SERVICE} does not exist"
+        return $EXIT_NOT_RUNNING
+    fi
+}
+
+check_liveness() {
+    if [ "$LIVY_SECURE" = "true" ]; then
+        livy_url="https://${LIVY_HOST}:${LIVY_PORT}/version"
+        livy_header_test="HTTP/1.* 401"
+    else
+        livy_url="http://${LIVY_HOST}:${LIVY_PORT}/version"
+        livy_header_test="HTTP/1.* 200"
+    fi
+
+    request_out=$(curl -s -k "$livy_url" -I)
+    request_exit=$?
+
+    if [ "$request_exit" -gt 0 ]; then
+        echo "${SERVICE} service is not responding"
+        return $EXIT_RUNNING_NOT_RESPONDING
+    fi
+
+    output_out=$(echo "$request_out" | grep -q "$livy_header_test")
+    output_exit=$?
+
+    if [ "$output_exit" -gt 0 ]; then
+        echo "${SERVICE} service is not responding properly"
+        return $EXIT_RUNNING_NOT_RESPONDING
+    fi
+
+    return $EXIT_SUCCESS
+}
+
+
+#
+# main
+#
+logInfo "Starting ${SERVICE} verification"
+
+running_out=$(check_running)
+running_exit=$?
+if [ "$running_exit" -ne 0 ]; then
+    logError "$running_out"
+    exit $running_exit
+fi
+
+liveness_out=$(check_liveness)
+liveness_exit=$?
+if [ "$liveness_exit" -ne 0 ]; then
+    logError "$liveness_out"
+    exit $liveness_exit
+fi
+
+logInfo "${SERVICE} is running and responding"
+exit $EXIT_SUCCESS
