@@ -42,10 +42,10 @@
 # livy.ui.basePath = ""
 
 # What spark master Livy sessions should use.
-# livy.spark.master = local
+livy.spark.master = yarn
 
 # What spark deploy mode Livy sessions should use.
-# livy.spark.deploy-mode =
+livy.spark.deploy-mode = cluster
 
 # Configure Livy server http request and response header size.
 # livy.server.request-header.size = 131072
@@ -75,7 +75,10 @@
 # livy.server.session.ttl = 8h
 
 # If livy should impersonate the requesting users when creating a new session.
-# livy.impersonation.enabled = false
+livy.impersonation.enabled = true
+
+# List of Livy superusers.
+# livy.superusers =
 
 # Logs size livy can cache for each session/batch. 0 means don't cache the logs.
 # livy.cache-log.size = 200
