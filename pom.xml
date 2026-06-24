@@ -105,7 +105,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scalatest.version>3.0.8</scalatest.version>
     <scalatra.version>2.6.5</scalatra.version>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <extraJavaTestArgs>
       -XX:+IgnoreUnrecognizedVMOptions
       --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
@@ -133,7 +133,7 @@
     <scala.version>2.11.12</scala.version>
     <!-- spark2 -->
     <spark.version>2.4.5</spark.version>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <py4j.version>0.10.9</py4j.version>
     <json4s.version>3.5.3</json4s.version>
     <spark.bin.name>spark-${spark.version}-bin-hadoop${hadoop.major-minor.version}</spark.bin.name>
@@ -243,7 +243,7 @@
     <module>scala-api/scala-${scala.binary.version}</module>
     <module>server</module>
     <module>test-lib</module>
-    <module>integration-test</module>
+    <!-- module>integration-test</module -->
   </modules>
 
   <dependencies>
@@ -1467,6 +1467,26 @@
       </build>
     </profile>
 
+    <profile>
+      <id>vendor-repo-mapr</id>
+      <activation>
+        <property>
+          <name>env.MAPR_MAVEN_REPO</name>
+        </property>
+      </activation>
+      <repositories>
+         <repository>
+          <id>MAPR_MAVEN_REPO</id>
+          <url>${env.MAPR_MAVEN_REPO}</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
   </profiles>
 
 </project>

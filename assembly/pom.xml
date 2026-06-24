@@ -30,7 +30,7 @@
 
   <properties>
     <assembly.name>apache-livy-${project.version}_${scala.binary.version}-bin</assembly.name>
-    <assembly.format>zip</assembly.format>
+    <assembly.format>tar.gz</assembly.format>
     <skipDeploy>true</skipDeploy>
   </properties>
 
