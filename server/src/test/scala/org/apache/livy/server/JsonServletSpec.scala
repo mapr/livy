@@ -18,8 +18,8 @@
 package org.apache.livy.server
 
 import java.nio.charset.StandardCharsets.UTF_8
-import javax.servlet.http.HttpServletResponse._
 
+import jakarta.servlet.http.HttpServletResponse._
 import org.scalatra._
 
 class JsonServletSpec extends BaseJsonServletSpec {

@@ -18,9 +18,9 @@
 package org.apache.livy.server.datafabric
 
 import java.math.{BigDecimal => JBigDecimal}
-import javax.servlet.ServletException
 
 import io.fabric8.kubernetes.api.model.Quantity
+import jakarta.servlet.ServletException
 
 import org.apache.livy.LivyConf
 import org.apache.livy.server.interactive.InteractiveSession.info

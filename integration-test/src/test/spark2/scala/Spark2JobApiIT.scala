@@ -20,7 +20,7 @@ package org.apache.livy.test
 import java.io.File
 import java.net.URI
 import java.util.concurrent.{TimeUnit, Future => JFuture}
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import scala.util.Properties
 

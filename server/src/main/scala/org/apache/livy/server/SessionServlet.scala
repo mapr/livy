@@ -18,8 +18,8 @@
 package org.apache.livy.server
 
 import java.security.AccessControlException
-import javax.servlet.http.HttpServletRequest
 
+import jakarta.servlet.http.HttpServletRequest
 import org.scalatra._
 import scala.concurrent._
 import scala.concurrent.duration._

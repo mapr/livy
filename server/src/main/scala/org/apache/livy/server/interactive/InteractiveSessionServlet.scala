@@ -18,12 +18,12 @@
 package org.apache.livy.server.interactive
 
 import java.net.URI
-import javax.servlet.http.HttpServletRequest
 
 import scala.collection.JavaConverters._
 import scala.concurrent._
 import scala.concurrent.duration._
 
+import jakarta.servlet.http.HttpServletRequest
 import org.json4s.jackson.Json4sScalaModule
 import org.scalatra._
 import org.scalatra.servlet.FileUploadSupport

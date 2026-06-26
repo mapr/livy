@@ -17,8 +17,7 @@
 
 package org.apache.livy.server
 
-import javax.servlet.http.HttpServletResponse
-
+import jakarta.servlet.http.HttpServletResponse
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatra.ScalatraServlet
 import org.scalatra.test.scalatest.ScalatraSuite

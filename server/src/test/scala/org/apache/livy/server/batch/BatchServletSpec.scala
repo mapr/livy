@@ -20,11 +20,11 @@ package org.apache.livy.server.batch
 import java.io.FileWriter
 import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse._
 
 import scala.concurrent.duration.Duration
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar.mock
 

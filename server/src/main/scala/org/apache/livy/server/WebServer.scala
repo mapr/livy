@@ -18,14 +18,14 @@
 package org.apache.livy.server
 
 import java.net.InetAddress
-import javax.servlet.ServletContextListener
 
 import com.mapr.web.security.SslConfig
 import com.mapr.web.security.SslConfig.SslConfigScope
 import com.mapr.web.security.WebSecurityManager
+import jakarta.servlet.ServletContextListener
 import org.apache.hadoop.conf.Configuration
 import org.eclipse.jetty.server._
-import org.eclipse.jetty.server.handler.{HandlerCollection, RequestLogHandler}
+import org.eclipse.jetty.server.handler.HandlerCollection
 import org.eclipse.jetty.servlet.{DefaultServlet, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
@@ -127,16 +127,15 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
   val handlers = new HandlerCollection
   handlers.addHandler(context)
 
-  // Configure the access log
-  val requestLogHandler = new RequestLogHandler
-  val requestLog = new NCSARequestLog(sys.env.getOrElse("LIVY_LOG_DIR",
+  // Configure the access log. RequestLogHandler/NCSARequestLog were removed in
+  // Jetty 10+, so the request log is now set directly on the server using a
+  // CustomRequestLog backed by a rolling RequestLogWriter.
+  val requestLogWriter = new RequestLogWriter(sys.env.getOrElse("LIVY_LOG_DIR",
     sys.env("LIVY_HOME") + "/logs") + "/yyyy_mm_dd.request.log")
-  requestLog.setAppend(true)
-  requestLog.setExtended(false)
-  requestLog.setLogTimeZone("GMT")
-  requestLog.setRetainDays(livyConf.getInt(LivyConf.REQUEST_LOG_RETAIN_DAYS))
-  requestLogHandler.setRequestLog(requestLog)
-  handlers.addHandler(requestLogHandler)
+  requestLogWriter.setAppend(true)
+  requestLogWriter.setTimeZone("GMT")
+  requestLogWriter.setRetainDays(livyConf.getInt(LivyConf.REQUEST_LOG_RETAIN_DAYS))
+  server.setRequestLog(new CustomRequestLog(requestLogWriter, CustomRequestLog.NCSA_FORMAT))
 
   server.setHandler(handlers)
 

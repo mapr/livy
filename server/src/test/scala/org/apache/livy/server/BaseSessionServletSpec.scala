@@ -17,8 +17,7 @@
 
 package org.apache.livy.server
 
-import javax.servlet.http.HttpServletRequest
-
+import jakarta.servlet.http.HttpServletRequest
 import org.scalatest.BeforeAndAfterAll
 
 import org.apache.livy.LivyConf

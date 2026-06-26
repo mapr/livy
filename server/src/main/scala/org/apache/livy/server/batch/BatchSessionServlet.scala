@@ -17,7 +17,7 @@
 
 package org.apache.livy.server.batch
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.apache.livy.LivyConf
 import org.apache.livy.server.{AccessManager, SessionServlet}

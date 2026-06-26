@@ -97,19 +97,19 @@
     <jackson-annotations.version>2.20</jackson-annotations.version>
     <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <jacoco.version>0.8.13</jacoco.version>
-    <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-    <jetty.version>9.4.56.v20240826</jetty.version>
+    <jakarta.servlet-api.version>5.0.0</jakarta.servlet-api.version>
+    <jetty.version>11.0.24</jetty.version>
     <junit.version>4.13.1</junit.version>
     <libthrift.version>0.13.0</libthrift.version>
     <kryo.version>5.5.0</kryo.version>
     <mapr.version>7.1.0.0-mapr-SNAPSHOT</mapr.version>
-    <metrics.version>3.1.0</metrics.version>
+    <metrics.version>4.2.30</metrics.version>
     <mockito.version>5.12.0</mockito.version>
     <scalatestplus.mockito.version>3.2.19.0</scalatestplus.mockito.version>
     <netty.version>4.2.7.Final</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scalatest.version>3.2.19</scalatest.version>
-    <scalatra.version>2.7.1</scalatra.version>
+    <scalatra.version>3.0.0-M5-jakarta</scalatra.version>
     <java.version>17</java.version>
     <extraJavaTestArgs>
       -XX:+IgnoreUnrecognizedVMOptions
@@ -146,7 +146,7 @@
       https://archive.apache.org/dist/spark/spark-${spark.compatversion}/${spark.bin.name}.tgz
     </spark.bin.download.url>
 
-    <!--  used for testing, NCSARequestLog use it for access log  -->
+    <!--  used for testing, the request access log is written here  -->
     <livy.log.dir>${basedir}/target</livy.log.dir>
 
     <!-- Set this to "true" to skip R tests. -->
@@ -379,9 +379,9 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${javax.servlet-api.version}</version>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta.servlet-api.version}</version>
       </dependency>
 
       <dependency>
@@ -752,12 +752,6 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-http</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-continuation</artifactId>
         <version>${jetty.version}</version>
       </dependency>
 

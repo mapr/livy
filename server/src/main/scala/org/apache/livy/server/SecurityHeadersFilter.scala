@@ -17,8 +17,8 @@
 
 package org.apache.livy.server
 
-import javax.servlet.{Filter, FilterChain, FilterConfig, ServletRequest, ServletResponse}
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.{Filter, FilterChain, FilterConfig, ServletRequest, ServletResponse}
+import jakarta.servlet.http.HttpServletResponse
 
 import org.apache.livy.LivyConf
 

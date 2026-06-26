@@ -19,7 +19,7 @@ package org.apache.livy.test.framework
 
 import java.io._
 import java.sql.DriverManager
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import scala.concurrent.duration._
 import scala.language.postfixOps

@@ -18,20 +18,20 @@
 package org.apache.livy.server.interactive
 
 import java.util.concurrent.atomic.AtomicInteger
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.language.postfixOps
 
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.json4s.jackson.Json4sScalaModule
 import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito.when
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.Mockito.when
 import org.mockito.stubbing.Answer
-import org.scalatest.Entry
 import org.scalatest.concurrent.Eventually._
+import org.scalatest.Entry
 import org.scalatestplus.mockito.MockitoSugar.mock
 
 import org.apache.livy.{ExecuteRequest, LivyConf}

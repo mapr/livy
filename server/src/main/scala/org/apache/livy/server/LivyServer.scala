@@ -21,12 +21,12 @@ import java.io.{BufferedInputStream, InputStream}
 import java.net.InetAddress
 import java.util.concurrent._
 import java.util.EnumSet
-import javax.servlet._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import jakarta.servlet._
 import org.apache.hadoop.security.{SecurityUtil, UserGroupInformation}
 import org.apache.hadoop.security.authentication.server._
 import org.eclipse.jetty.servlet.FilterHolder
@@ -104,6 +104,11 @@ class LivyServer extends Logging {
       _thriftServerFactory = Some(ThriftServerFactory.getInstance)
     }
 
+    // Periodic kinit / UGI keytab login for Kerberos-secured Hadoop is disabled as part of the
+    // Jetty 11 / jakarta.servlet (Spark 4) migration, since the Kerberos auth path above is
+    // currently inactive. Re-enable once the auth handlers are re-pointed to Spark's jakarta
+    // filter.
+    /*
     if (UserGroupInformation.isSecurityEnabled
       && livyConf.get(AUTH_TYPE) == KerberosAuthenticationHandler.TYPE) {
       // If Hadoop security is enabled, run kinit periodically. runKinit() should be called
@@ -141,6 +146,7 @@ class LivyServer extends Logging {
       ugi = UserGroupInformation.getCurrentUser
       startKinitThread(launch_keytab, launch_principal)
     }
+    */
 
     testRecovery(livyConf)
 
@@ -274,43 +280,51 @@ class LivyServer extends Logging {
     }
 
     livyConf.get(AUTH_TYPE) match {
-      case authType @ KerberosAuthenticationHandler.TYPE =>
-        val principal = SecurityUtil.getServerPrincipal(livyConf.get(AUTH_KERBEROS_PRINCIPAL),
-          server.host)
-        val keytab = livyConf.get(AUTH_KERBEROS_KEYTAB)
-        require(principal != null,
-          s"Kerberos auth requires ${AUTH_KERBEROS_PRINCIPAL.key} to be provided.")
-        require(keytab != null,
-          s"Kerberos auth requires ${AUTH_KERBEROS_KEYTAB.key} to be provided.")
-
-        val holder = new FilterHolder(new AuthenticationFilter())
-        holder.setInitParameter(AuthenticationFilter.AUTH_TYPE, authType)
-        holder.setInitParameter(KerberosAuthenticationHandler.PRINCIPAL, principal)
-        holder.setInitParameter(KerberosAuthenticationHandler.KEYTAB, keytab)
-        holder.setInitParameter(KerberosAuthenticationHandler.NAME_RULES,
-          livyConf.get(AUTH_KERBEROS_NAME_RULES))
-        server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
-        info(s"SPNEGO auth enabled (principal = $principal)")
-
-      case authType @ LdapAuthenticationHandlerImpl.TYPE =>
-        val holder = new FilterHolder(new AuthenticationFilter())
-        holder.setInitParameter(AuthenticationFilter.AUTH_TYPE,
-          LdapAuthenticationHandlerImpl.getClass.getCanonicalName.dropRight(1))
-        Option(livyConf.get(LivyConf.AUTH_LDAP_URL)).foreach { url =>
-          holder.setInitParameter(LdapAuthenticationHandlerImpl.PROVIDER_URL, url)
-        }
-        Option(livyConf.get(LivyConf.AUTH_LDAP_USERNAME_DOMAIN)).foreach { domain =>
-          holder.setInitParameter(LdapAuthenticationHandlerImpl.LDAP_BIND_DOMAIN, domain)
-        }
-        Option(livyConf.get(LivyConf.AUTH_LDAP_BASE_DN)).foreach { baseDN =>
-          holder.setInitParameter(LdapAuthenticationHandlerImpl.BASE_DN, baseDN)
-        }
-        holder.setInitParameter(LdapAuthenticationHandlerImpl.SECURITY_AUTHENTICATION,
-          livyConf.get(LivyConf.AUTH_LDAP_SECURITY_AUTH))
-        holder.setInitParameter(LdapAuthenticationHandlerImpl.ENABLE_START_TLS,
-          livyConf.get(LivyConf.AUTH_LDAP_ENABLE_START_TLS))
-        server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
-        info("LDAP auth enabled.")
+      // NOTE: The Kerberos (SPNEGO) and LDAP auth paths below rely on Hadoop's
+      // org.apache.hadoop.security.authentication.server.AuthenticationFilter, which is a
+      // javax.servlet.Filter. After the migration to Jetty 11 / jakarta.servlet (Spark 4),
+      // Jetty's FilterHolder only accepts jakarta.servlet.Filter, so these paths no longer
+      // compile/run as-is. They are commented out until the handlers are re-pointed to
+      // Spark's jakarta-based filter (org.apache.spark.ui.filters.hadoop_auth_copy). The
+      // datafabric deployment uses the "multiauth-sso" custom-class path below instead.
+      //
+      // case authType @ KerberosAuthenticationHandler.TYPE =>
+      //   val principal = SecurityUtil.getServerPrincipal(livyConf.get(AUTH_KERBEROS_PRINCIPAL),
+      //     server.host)
+      //   val keytab = livyConf.get(AUTH_KERBEROS_KEYTAB)
+      //   require(principal != null,
+      //     s"Kerberos auth requires ${AUTH_KERBEROS_PRINCIPAL.key} to be provided.")
+      //   require(keytab != null,
+      //     s"Kerberos auth requires ${AUTH_KERBEROS_KEYTAB.key} to be provided.")
+      //
+      //   val holder = new FilterHolder(new AuthenticationFilter())
+      //   holder.setInitParameter(AuthenticationFilter.AUTH_TYPE, authType)
+      //   holder.setInitParameter(KerberosAuthenticationHandler.PRINCIPAL, principal)
+      //   holder.setInitParameter(KerberosAuthenticationHandler.KEYTAB, keytab)
+      //   holder.setInitParameter(KerberosAuthenticationHandler.NAME_RULES,
+      //     livyConf.get(AUTH_KERBEROS_NAME_RULES))
+      //   server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
+      //   info(s"SPNEGO auth enabled (principal = $principal)")
+      //
+      // case authType @ LdapAuthenticationHandlerImpl.TYPE =>
+      //   val holder = new FilterHolder(new AuthenticationFilter())
+      //   holder.setInitParameter(AuthenticationFilter.AUTH_TYPE,
+      //     LdapAuthenticationHandlerImpl.getClass.getCanonicalName.dropRight(1))
+      //   Option(livyConf.get(LivyConf.AUTH_LDAP_URL)).foreach { url =>
+      //     holder.setInitParameter(LdapAuthenticationHandlerImpl.PROVIDER_URL, url)
+      //   }
+      //   Option(livyConf.get(LivyConf.AUTH_LDAP_USERNAME_DOMAIN)).foreach { domain =>
+      //     holder.setInitParameter(LdapAuthenticationHandlerImpl.LDAP_BIND_DOMAIN, domain)
+      //   }
+      //   Option(livyConf.get(LivyConf.AUTH_LDAP_BASE_DN)).foreach { baseDN =>
+      //     holder.setInitParameter(LdapAuthenticationHandlerImpl.BASE_DN, baseDN)
+      //   }
+      //   holder.setInitParameter(LdapAuthenticationHandlerImpl.SECURITY_AUTHENTICATION,
+      //     livyConf.get(LivyConf.AUTH_LDAP_SECURITY_AUTH))
+      //   holder.setInitParameter(LdapAuthenticationHandlerImpl.ENABLE_START_TLS,
+      //     livyConf.get(LivyConf.AUTH_LDAP_ENABLE_START_TLS))
+      //   server.context.addFilter(holder, "/*", EnumSet.allOf(classOf[DispatcherType]))
+      //   info("LDAP auth enabled.")
 
       case null =>
         // Nothing to do.

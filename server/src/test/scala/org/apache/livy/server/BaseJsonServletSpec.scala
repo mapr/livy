@@ -18,11 +18,11 @@
 package org.apache.livy.server
 
 import java.io.ByteArrayOutputStream
-import javax.servlet.http.HttpServletResponse._
 
 import scala.reflect.ClassTag
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.servlet.http.HttpServletResponse._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatra.test.scalatest.ScalatraSuite
 

@@ -22,7 +22,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{Files, StandardCopyOption}
 import java.util.concurrent.{Future => JFuture, TimeUnit}
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import scala.collection.JavaConverters._
 import scala.util.{Properties, Try}

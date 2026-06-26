@@ -18,8 +18,8 @@
 
 package org.apache.livy.server
 
-import javax.servlet._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jakarta.servlet._
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class CsrfFilter extends Filter {
 

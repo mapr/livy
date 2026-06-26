@@ -17,7 +17,7 @@
 package org.apache.livy.test.framework
 
 import java.util.regex.Pattern
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._

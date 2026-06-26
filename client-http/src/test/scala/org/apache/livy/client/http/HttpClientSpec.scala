@@ -22,11 +22,11 @@ import java.net.{InetAddress, URI}
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.{Future => JFuture, _}
 import java.util.concurrent.atomic.AtomicLong
-import javax.servlet.ServletContext
-import javax.servlet.http.HttpServletRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import jakarta.servlet.ServletContext
+import jakarta.servlet.http.HttpServletRequest
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => meq, _}
 import org.mockito.Mockito._

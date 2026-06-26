@@ -17,7 +17,7 @@
 
 package org.apache.livy.thriftserver
 
-import javax.servlet.Servlet
+import jakarta.servlet.Servlet
 
 import org.apache.livy.LivyConf
 import org.apache.livy.server.{AccessManager, ThriftServerFactory}

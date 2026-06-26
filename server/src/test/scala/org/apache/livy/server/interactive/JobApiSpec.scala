@@ -22,7 +22,7 @@ import java.io.File
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.file.{Files, Paths}
-import javax.servlet.http.HttpServletResponse._
+import jakarta.servlet.http.HttpServletResponse._
 
 import scala.concurrent.duration._
 import scala.io.Source

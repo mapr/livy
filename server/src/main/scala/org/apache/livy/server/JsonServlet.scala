@@ -17,14 +17,13 @@
 
 package org.apache.livy.server
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.{JsonMappingException, ObjectMapper}
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.scalatra._
 
 /**

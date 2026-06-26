@@ -17,9 +17,8 @@
 
 package org.apache.livy.server
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse._
-
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse._
 import org.scalatestplus.mockito.MockitoSugar.mock
 
 import org.apache.livy.LivyConf

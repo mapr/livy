@@ -17,9 +17,8 @@
 
 package org.apache.livy.server
 
-import javax.servlet.FilterChain
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{atLeastOnce, verify}
 import org.scalatest.funspec.AnyFunSpec

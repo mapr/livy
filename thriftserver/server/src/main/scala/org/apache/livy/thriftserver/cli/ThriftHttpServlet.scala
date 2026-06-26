@@ -19,8 +19,8 @@ package org.apache.livy.thriftserver.cli
 
 import java.io.IOException
 import java.security.{PrivilegedExceptionAction, SecureRandom}
-import javax.servlet.ServletException
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.NewCookie
 
 import scala.collection.JavaConverters._
@@ -375,7 +375,7 @@ object ThriftHttpServlet extends Logging {
       debug("URL query string:" + queryString)
     }
     Option(queryString).flatMap { qs =>
-      val params = javax.servlet.http.HttpUtils.parseQueryString(qs)
+      val params = jakarta.servlet.http.HttpUtils.parseQueryString(qs)
       params.keySet().asScala.find(_.equalsIgnoreCase("doAs")).map(params.get(_).head)
     }.orNull
   }
