@@ -17,16 +17,14 @@
 
 package org.apache.livy.repl
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import java.net.{URL, URLClassLoader}
 import java.nio.file.{Files, Paths}
 
 import scala.tools.nsc.Settings
-import scala.tools.nsc.interpreter.Completion
 import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.interpreter.JPrintWriter
-import scala.tools.nsc.interpreter.NoCompletion
 import scala.tools.nsc.interpreter.Results.Result
+import scala.tools.nsc.interpreter.shell.{Accumulator, Completion, NoCompletion, ReplCompletion}
 
 import org.apache.spark.SparkConf
 import org.apache.spark.repl.SparkILoop
@@ -52,14 +50,13 @@ class SparkInterpreter(protected override val conf: SparkConf) extends AbstractS
     settings.usejavacp.value = true
     settings.embeddedDefaults(Thread.currentThread().getContextClassLoader())
 
-    sparkILoop = new SparkILoop(None, new JPrintWriter(outputStream, true))
-    sparkILoop.settings = settings
-    sparkILoop.createInterpreter()
-    sparkILoop.initializeSynchronous()
+    sparkILoop = new SparkILoop(null, new PrintWriter(outputStream, true))
+    sparkILoop.createInterpreter(settings)
+    sparkILoop.intp.initializeCompiler()
 
     restoreContextClassLoader {
-      sparkILoop.compilerClasspath
-      sparkILoop.ensureClassLoader
+      sparkILoop.intp.compilerClasspath
+      sparkILoop.intp.asInstanceOf[IMain].ensureClassLoader()
       var classLoader = Thread.currentThread().getContextClassLoader
       while (classLoader != null) {
         if (classLoader.getClass.getCanonicalName ==
@@ -75,7 +72,7 @@ class SparkInterpreter(protected override val conf: SparkConf) extends AbstractS
             }
 
           extraJarPath.foreach { p => debug(s"Adding $p to Scala interpreter's class path...") }
-          sparkILoop.addUrlsToClassPath(extraJarPath: _*)
+          sparkILoop.intp.addUrlsToClassPath(extraJarPath.toIndexedSeq: _*)
           classLoader = null
         } else {
           classLoader = classLoader.getParent
@@ -96,7 +93,7 @@ class SparkInterpreter(protected override val conf: SparkConf) extends AbstractS
   }
 
   override def addJar(jar: String): Unit = {
-    sparkILoop.addUrlsToClassPath(new URL(jar))
+    sparkILoop.intp.addUrlsToClassPath(new URL(jar))
   }
 
   override protected def isStarted(): Boolean = {
@@ -104,33 +101,31 @@ class SparkInterpreter(protected override val conf: SparkConf) extends AbstractS
   }
 
   override protected def interpret(code: String): Result = {
-    sparkILoop.interpret(code)
+    sparkILoop.intp.interpret(code)
   }
 
   override protected def completeCandidates(code: String, cursor: Int) : Array[String] = {
     val completer : Completion = {
       try {
-        val cls = Class.forName("scala.tools.nsc.interpreter.PresentationCompilerCompleter")
-        cls.getDeclaredConstructor(classOf[IMain]).newInstance(sparkILoop.intp)
-          .asInstanceOf[Completion]
+        new ReplCompletion(sparkILoop.intp, new Accumulator)
       } catch {
-        case e : ClassNotFoundException => NoCompletion
+        case e : Exception => NoCompletion
       }
     }
-    completer.complete(code, cursor).candidates.toArray
+    completer.complete(code, cursor).candidates.map(_.name).toArray
   }
 
   override protected def valueOfTerm(name: String): Option[Any] = {
     // IMain#valueOfTerm will always return None, so use other way instead.
-    Option(sparkILoop.lastRequest.lineRep.call("$result"))
+    Option(sparkILoop.intp.asInstanceOf[IMain].lastRequest.lineRep.call("$result"))
   }
 
   override protected def bind(name: String,
       tpe: String,
       value: Object,
       modifier: List[String]): Unit = {
-    sparkILoop.beQuietDuring {
-      sparkILoop.bind(name, tpe, value, modifier)
+    sparkILoop.intp.beQuietDuring {
+      sparkILoop.intp.bind(name, tpe, value, modifier)
     }
   }
 }
