@@ -24,7 +24,6 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.SparkSession$;
 import org.apache.spark.sql.hive.HiveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ public class SparkEntries {
             SparkConf conf = sc().getConf();
             String catalog = conf.get("spark.sql.catalogImplementation", "in-memory").toLowerCase();
 
-            if (catalog.equals("hive") && SparkSession$.MODULE$.hiveClassesArePresent()) {
+            if (catalog.equals("hive") && hiveClassesArePresent()) {
               ClassLoader loader = Thread.currentThread().getContextClassLoader() != null ?
                 Thread.currentThread().getContextClassLoader() : getClass().getClassLoader();
               if (loader.getResource("hive-site.xml") == null) {
@@ -133,6 +132,34 @@ public class SparkEntries {
   public synchronized void stop() {
     if (sc != null) {
       sc.stop();
+    }
+  }
+
+  // Hive classes whose presence is required to enable Hive support. Spark moved
+  // SparkSession.hiveClassesArePresent from the companion object (Spark 3.x) to a
+  // private[spark] instance method on the classic SparkSession (Spark 4.x), so it can no
+  // longer be invoked in a version-portable way. The (stable) check is replicated here to
+  // keep compatibility across Spark versions.
+  private static final String HIVE_SESSION_STATE_BUILDER_CLASS_NAME =
+    "org.apache.spark.sql.hive.HiveSessionStateBuilder";
+  private static final String HIVE_CONF_CLASS_NAME =
+    "org.apache.hadoop.hive.conf.HiveConf";
+
+  /**
+   * @return true if the Hive classes required for Hive support can be loaded, otherwise false.
+   *
+   * <p>Equivalent to Spark's internal {@code SparkSession.hiveClassesArePresent}, replicated
+   * here so the check works against both Spark 3.x and Spark 4.x.
+   */
+  private static boolean hiveClassesArePresent() {
+    ClassLoader loader = Thread.currentThread().getContextClassLoader() != null ?
+      Thread.currentThread().getContextClassLoader() : SparkEntries.class.getClassLoader();
+    try {
+      Class.forName(HIVE_SESSION_STATE_BUILDER_CLASS_NAME, false, loader);
+      Class.forName(HIVE_CONF_CLASS_NAME, false, loader);
+      return true;
+    } catch (ClassNotFoundException | NoClassDefFoundError e) {
+      return false;
     }
   }
 }
