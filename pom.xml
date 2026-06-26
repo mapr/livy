@@ -84,16 +84,18 @@
     <reload4j.version>1.2.26</reload4j.version>
     <spark.scala-2.11.version>2.4.5</spark.scala-2.11.version>
     <spark.scala-2.12.version>3.5.5.500-dep-1010-SNAPSHOT</spark.scala-2.12.version>
-    <spark.version>${spark.scala-2.12.version}</spark.version>
-    <spark.compatversion>3.5.5</spark.compatversion>
+    <spark.scala-2.13.version>4.1.1.0-dep-SNAPSHOT</spark.scala-2.13.version>
+    <spark.version>${spark.scala-2.13.version}</spark.version>
+    <spark.compatversion>4.1.1</spark.compatversion>
     <kubernetes.client.version>6.7.2</kubernetes.client.version>
     <hive.version>3.0.0</hive.version>
     <commons-codec.version>1.15</commons-codec.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <httpclient.version>4.5.14</httpclient.version>
     <httpcore.version>4.4.16</httpcore.version>
-    <jackson.version>2.12.7</jackson.version>
-    <jackson-databind.version>2.12.7.1</jackson-databind.version>
+    <jackson.version>2.20.0</jackson.version>
+    <jackson-annotations.version>2.20</jackson-annotations.version>
+    <jackson-databind.version>${jackson.version}</jackson-databind.version>
     <jacoco.version>0.8.13</jacoco.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <jetty.version>9.4.56.v20240826</jetty.version>
@@ -103,7 +105,7 @@
     <mapr.version>7.1.0.0-mapr-SNAPSHOT</mapr.version>
     <metrics.version>3.1.0</metrics.version>
     <mockito.version>1.10.19</mockito.version>
-    <netty.version>4.1.131.Final</netty.version>
+    <netty.version>4.2.7.Final</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <scalatest.version>3.0.8</scalatest.version>
     <scalatra.version>2.6.5</scalatra.version>
@@ -131,13 +133,13 @@
     <hadoop.major-minor.version>3</hadoop.major-minor.version>
     <hadoop.version>3.4.1.400-dep-1010-SNAPSHOT</hadoop.version>
     <!-- scala2.11 -->
-    <scala.binary.version>2.12</scala.binary.version>
-    <scala.version>2.12.15</scala.version>
+    <scala.binary.version>2.13</scala.binary.version>
+    <scala.version>2.13.17</scala.version>
     <!-- spark2 -->
-    <spark.version>${spark.scala-2.12.version}</spark.version>
+    <spark.version>${spark.scala-2.13.version}</spark.version>
     <java.version>17</java.version>
-    <py4j.version>0.10.9.5</py4j.version>
-    <json4s.version>3.7.0-M11</json4s.version>
+    <py4j.version>0.10.9.9</py4j.version>
+    <json4s.version>4.0.7</json4s.version>
     <spark.bin.name>spark-${spark.compatversion}-bin-hadoop${hadoop.major-minor.version}</spark.bin.name>
     <spark.bin.download.url>
       https://archive.apache.org/dist/spark/spark-${spark.compatversion}/${spark.bin.name}.tgz
@@ -305,7 +307,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson-annotations.version}</version>
       </dependency>
 
       <dependency>
