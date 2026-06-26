@@ -33,13 +33,14 @@ import scala.util.{Failure, Success}
 
 import org.apache.spark.SparkFiles
 import org.apache.spark.launcher.SparkLauncher
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funsuite.AnyFunSuite
 
 import org.apache.livy.LivyBaseUnitTestSuite
 import org.apache.livy.rsc.RSCConf.Entry._
 
-class ScalaClientTest extends FunSuite
+class ScalaClientTest extends AnyFunSuite
   with ScalaFutures
   with BeforeAndAfter
   with LivyBaseUnitTestSuite {
@@ -111,7 +112,7 @@ class ScalaClientTest extends FunSuite
     fileStream.write("test file".getBytes("UTF-8"))
     fileStream.close
     val addFileFuture = client.addFile(new URI("file:" + file.getAbsolutePath()))
-    Await.ready(addFileFuture, ScalaClientTestUtils.Timeout second)
+    Await.ready(addFileFuture, ScalaClientTestUtils.Timeout.seconds)
     val sFuture = client.submit { context =>
       ScalaClientTest.fileOperation(false, file.getName, context)
     }
@@ -127,7 +128,7 @@ class ScalaClientTest extends FunSuite
     jarFile.closeEntry()
     jarFile.close()
     val addJarFuture = client.addJar(new URI("file:" + jar.getAbsolutePath()))
-    Await.ready(addJarFuture, ScalaClientTestUtils.Timeout second)
+    Await.ready(addJarFuture, ScalaClientTestUtils.Timeout.seconds)
     val sFuture = client.submit { context =>
       ScalaClientTest.fileOperation(true, "test.resource", context)
     }

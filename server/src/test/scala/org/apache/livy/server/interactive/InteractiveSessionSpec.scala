@@ -27,10 +27,12 @@ import scala.language.postfixOps
 import org.apache.spark.launcher.SparkLauncher
 import org.json4s.{DefaultFormats, Extraction, JValue}
 import org.json4s.jackson.JsonMethods.parse
-import org.mockito.{Matchers => MockitoMatchers}
-import org.mockito.Matchers._
+import org.mockito.{ArgumentMatchers => MockitoMatchers}
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito.{atLeastOnce, verify, when}
-import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.concurrent.Eventually._
 import org.scalatestplus.mockito.MockitoSugar.mock
 
@@ -42,7 +44,7 @@ import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions.{PySpark, SessionState, Spark}
 import org.apache.livy.utils.{AppInfo, SparkApp}
 
-class InteractiveSessionSpec extends FunSpec
+class InteractiveSessionSpec extends AnyFunSpec
     with Matchers with BeforeAndAfterAll with LivyBaseUnitTestSuite {
 
   private val livyConf = new LivyConf()
@@ -172,7 +174,7 @@ class InteractiveSessionSpec extends FunSpec
       session.appInfo shouldEqual expectedAppInfo
 
       verify(sessionStore, atLeastOnce()).save(
-        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), anyObject())
+        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), any())
 
       session.state should (be(SessionState.Starting) or be(SessionState.Idle))
     }
@@ -288,7 +290,7 @@ class InteractiveSessionSpec extends FunSpec
 
       s.appIdKnown("appId")
       verify(sessionStore, atLeastOnce()).save(
-        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), anyObject())
+        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), any())
     }
 
     it("should recover sessions with no name") {
@@ -307,7 +309,7 @@ class InteractiveSessionSpec extends FunSpec
 
       s.appIdKnown("appId")
       verify(sessionStore, atLeastOnce()).save(
-        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), anyObject())
+        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), any())
     }
 
     it("should recover session to dead state if rscDriverUri is unknown") {
