@@ -22,9 +22,11 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 
 import org.apache.http.client.utils.URIBuilder
-import org.eclipse.jetty.security._
+import org.eclipse.jetty.ee9.nested.ServletConstraint
+import org.eclipse.jetty.ee9.security.{ConstraintMapping, ConstraintSecurityHandler, SecurityHandler}
+import org.eclipse.jetty.ee9.security.authentication.BasicAuthenticator
+import org.eclipse.jetty.security.HashLoginService
 import org.eclipse.jetty.security.UserStore
-import org.eclipse.jetty.security.authentication.BasicAuthenticator
 import org.eclipse.jetty.util.security._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
@@ -45,8 +47,8 @@ class LivyConnectionSpec extends AnyFunSpecLike with BeforeAndAfterAll with Livy
       l.setUserStore(userStore)
       l.setName(realm)
 
-      val constraint = new Constraint()
-      constraint.setName(Constraint.__BASIC_AUTH)
+      val constraint = new ServletConstraint()
+      constraint.setName(jakarta.servlet.http.HttpServletRequest.BASIC_AUTH)
       constraint.setRoles(roles)
       constraint.setAuthenticate(true)
 
@@ -68,7 +70,6 @@ class LivyConnectionSpec extends AnyFunSpecLike with BeforeAndAfterAll with Livy
 
       val server = new WebServer(livyConf, "0.0.0.0", 0)
       server.context.setSecurityHandler(basicAuth(username, password, "realm"))
-      server.context.setResourceBase("src/main/org/apache/livy/server")
       server.context.setInitParameter(ScalatraListener.LifeCycleKey,
         classOf[HttpClientTestBootstrap].getCanonicalName)
       server.context.addEventListener(new ScalatraListener)

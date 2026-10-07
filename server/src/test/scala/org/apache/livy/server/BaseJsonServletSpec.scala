@@ -24,12 +24,11 @@ import scala.reflect.ClassTag
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletResponse._
 import org.scalatest.funspec.AnyFunSpecLike
-import org.scalatra.test.scalatest.ScalatraSuite
 
 import org.apache.livy.LivyBaseUnitTestSuite
 
 /**
- * Base class that enhances ScalatraSuite so that it's easier to test JsonServlet
+ * Base class that enhances ScalatraEE9Suite so that it's easier to test JsonServlet
  * implementations. Variants of the test methods (get, post, etc) exist with the "j"
  * prefix; these automatically serialize the body of the request to JSON, and
  * deserialize the result from JSON.
@@ -37,7 +36,7 @@ import org.apache.livy.LivyBaseUnitTestSuite
  * In case the response is not JSON, the expected type for the test function should be
  * `Unit`, and the `response` object should be checked directly.
  */
-abstract class BaseJsonServletSpec extends ScalatraSuite
+abstract class BaseJsonServletSpec extends ScalatraEE9Suite
   with AnyFunSpecLike with LivyBaseUnitTestSuite {
 
   protected val mapper = new ObjectMapper()

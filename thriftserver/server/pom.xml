@@ -116,9 +116,17 @@
       <version>2.25.1</version>
     </dependency>
 
+    <!-- jetty-runner was removed in Jetty 12. The thriftserver only needs an
+         embedded ServletContextHandler + Server, so depend on the core server
+         and the EE9 (jakarta.servlet 5.0) servlet integration directly. -->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-runner</artifactId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.ee9</groupId>
+      <artifactId>jetty-ee9-servlet</artifactId>
       <version>${jetty.version}</version>
     </dependency>
 

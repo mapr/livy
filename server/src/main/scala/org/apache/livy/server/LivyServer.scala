@@ -29,7 +29,7 @@ import scala.concurrent.Future
 import jakarta.servlet._
 import org.apache.hadoop.security.{SecurityUtil, UserGroupInformation}
 import org.apache.hadoop.security.authentication.server._
-import org.eclipse.jetty.servlet.FilterHolder
+import org.eclipse.jetty.ee9.servlet.FilterHolder
 import org.scalatra.{ApiFormats, NotFound, ScalatraServlet}
 import org.scalatra.metrics.MetricsBootstrap
 import org.scalatra.metrics.MetricsSupportExtensions._
@@ -169,7 +169,6 @@ class LivyServer extends Logging {
     val interactiveSessionManager = new InteractiveSessionManager(livyConf, sessionStore)
 
     server = new WebServer(livyConf, host, port)
-    server.context.setResourceBase("src/main/org/apache/livy/server")
 
     val livyVersionServlet = new JsonServlet {
       before() { contentType = "application/json" }

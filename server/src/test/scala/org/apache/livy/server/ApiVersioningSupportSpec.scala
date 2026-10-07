@@ -20,11 +20,10 @@ package org.apache.livy.server
 import jakarta.servlet.http.HttpServletResponse
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatra.ScalatraServlet
-import org.scalatra.test.scalatest.ScalatraSuite
 
 import org.apache.livy.LivyBaseUnitTestSuite
 
-class ApiVersioningSupportSpec extends ScalatraSuite
+class ApiVersioningSupportSpec extends ScalatraEE9Suite
     with AnyFunSpecLike with LivyBaseUnitTestSuite {
   val LatestVersionOutput = "latest"
 

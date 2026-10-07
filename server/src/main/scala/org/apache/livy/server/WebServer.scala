@@ -24,9 +24,8 @@ import com.mapr.web.security.SslConfig.SslConfigScope
 import com.mapr.web.security.WebSecurityManager
 import jakarta.servlet.ServletContextListener
 import org.apache.hadoop.conf.Configuration
+import org.eclipse.jetty.ee9.servlet.{DefaultServlet, ServletContextHandler}
 import org.eclipse.jetty.server._
-import org.eclipse.jetty.server.handler.HandlerCollection
-import org.eclipse.jetty.servlet.{DefaultServlet, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
 import org.apache.livy.{LivyConf, Logging}
@@ -124,7 +123,7 @@ class WebServer(livyConf: LivyConf, var host: String, var port: Int) extends Log
   context.setContextPath("/")
   context.addServlet(classOf[DefaultServlet], "/")
 
-  val handlers = new HandlerCollection
+  val handlers = new Handler.Sequence
   handlers.addHandler(context)
 
   // Configure the access log. RequestLogHandler/NCSARequestLog were removed in
