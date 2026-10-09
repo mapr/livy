@@ -83,8 +83,8 @@
     <slf4j.version>1.7.36</slf4j.version>
     <reload4j.version>1.2.26</reload4j.version>
     <spark.scala-2.11.version>2.4.5</spark.scala-2.11.version>
-    <spark.scala-2.12.version>3.5.5.500-dep-1010-SNAPSHOT</spark.scala-2.12.version>
-    <spark.scala-2.13.version>4.1.3.0-dep-SNAPSHOT</spark.scala-2.13.version>
+    <spark.scala-2.12.version>3.5.5</spark.scala-2.12.version>
+    <spark.scala-2.13.version>4.1.3.0-dep-1020</spark.scala-2.13.version>
     <spark.version>${spark.scala-2.13.version}</spark.version>
     <spark.compatversion>4.1.1</spark.compatversion>
     <kubernetes.client.version>6.7.2</kubernetes.client.version>
@@ -102,7 +102,7 @@
     <junit.version>4.13.1</junit.version>
     <libthrift.version>0.13.0</libthrift.version>
     <kryo.version>5.5.0</kryo.version>
-    <mapr.version>8.2.0.0-mapr-SNAPSHOT</mapr.version>
+    <mapr.version>8.2.0.0-mapr</mapr.version>
     <metrics.version>4.2.30</metrics.version>
     <mockito.version>5.12.0</mockito.version>
     <scalatestplus.mockito.version>3.2.19.0</scalatestplus.mockito.version>
@@ -132,7 +132,7 @@
     <!-- profile controlled parameters, we are setting the defaults here so we can run "mvn package" with default profile values -->
     <!-- hadoop2 -->
     <hadoop.major-minor.version>3</hadoop.major-minor.version>
-    <hadoop.version>3.4.1.400-dep-1010-SNAPSHOT</hadoop.version>
+    <hadoop.version>3.4.1.500-dep-1020</hadoop.version>
     <!-- scala2.11 -->
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.17</scala.version>
@@ -162,7 +162,7 @@
     <ldap-api.version>2.1.2</ldap-api.version>
 
     <curator.version>5.9.0</curator.version>
-    <zookeeper.version>3.8.3.0-mapr-SNAPSHOT</zookeeper.version>
+    <zookeeper.version>3.8.3.0-mapr-2609</zookeeper.version>
     <zookeeper.scope>provided</zookeeper.scope>
     <curator.scope>${zookeeper.scope}</curator.scope>
 
